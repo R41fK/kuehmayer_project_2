@@ -60,11 +60,21 @@ add_global_arguments('-I' + get_option('sqlite_orm_include_dir'), language : 'cp
 # subdir('SUBDIR1')
 
 inc_dir = include_directories('include')
-src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp']
+
+
+client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 'src/leasing_calculation.cpp']
+
+server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp']
 #protobuf: src = ['src/main.cpp', generated]
 
 executable('client',
-           sources : src,
+           sources : client_src,
+           include_directories : inc_dir,
+           dependencies : [thread_dep]#, protobuf_dep]
+          )
+
+executable('server',
+           sources : server_src,
            include_directories : inc_dir,
            dependencies : [thread_dep]#, protobuf_dep]
           )
