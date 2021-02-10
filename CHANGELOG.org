@@ -1,0 +1,16 @@
+* Changelog
+** [Unreleased]
+*** Added
+- build
+- src
+- src/main.cpp
+- .gitignore
+- LICENSE
+- README.md
+- meson.build
+- meson_options.txt
+** [0.0.1] - 2020-02-08
+*** Added
+- Create repository
+- Initialize project
+- Fill .gitignore

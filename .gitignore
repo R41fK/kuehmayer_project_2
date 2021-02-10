@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+.idea/
+build/
+*.log
+*.tmp
+*.private
+tmp/
+devel/
+logs/
+.vscode
