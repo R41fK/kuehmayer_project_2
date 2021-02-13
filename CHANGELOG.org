@@ -1,6 +1,35 @@
 * Changelog
 ** [Unreleased]
 *** Added
+- include/client/
+- include/client/repl.h
+- include/server/
+- include/test/
+- include/car_builder.h
+- include/car.h
+- include/config.h
+- include/leasing_calculation.h
+- include/pystring.h
+- src/client/
+- src/client/c_main.cpp
+- src/client/repl.cpp
+- src/server/
+- src/server/s_main.cpp
+- src/test/
+- src/car_builder.cpp
+- src/car.cpp
+- src/config.cpp
+- src/leasing_calculation.cpp
+- src/pystring.cpp
+*** Deleted
+- src/main.cpp
+*** Updated
+- meson.build
+- meson_options.txt
+
+
+** [0.0.1] - 2020-02-08
+*** Added
 - build
 - src
 - src/main.cpp
@@ -9,8 +38,6 @@
 - README.md
 - meson.build
 - meson_options.txt
-** [0.0.1] - 2020-02-08
-*** Added
 - Create repository
 - Initialize project
 - Fill .gitignore

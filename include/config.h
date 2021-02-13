@@ -1,5 +1,13 @@
-#include <string>
+#pragma once
 
+#include <optional>
+
+#include <json.hpp>
+#include <toml.hpp>
+
+std::optional<nlohmann::json> validate_json(std::string);
+
+std::optional<toml::table> validate_toml(std::string);
 
 
 struct Server {

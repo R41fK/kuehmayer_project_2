@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+#include <optional>
 
 #include <json.hpp>
 #include <spdlog/spdlog.h>
@@ -6,9 +9,50 @@
 
 #include "config.h"
 
+
+using json = nlohmann::json;
 using namespace std;
 
-void Log_Settings::config_logger(){
+optional<json> validate_json(string file_name) {
+
+    try {
+        json j;
+
+        ifstream i{file_name};
+        i >> j;
+        return j;
+
+    } catch (const nlohmann::detail::parse_error& err) {
+
+        string error_message{err.what()};
+
+        cerr << "Not Valid JSON: " + error_message << endl;
+        spdlog::error("Not Valid JSON: " + error_message);
+
+        return nullopt;
+    }
+}
+
+
+optional<toml::table> validate_toml(string file_name) {
+
+    try {
+        toml::table t =  toml::parse_file(file_name);
+
+        return t;
+
+    } catch (const toml::parse_error& err) {
+        
+        string error_message{err.what()};
+
+        cerr << "Not Valid TOML: " + error_message << endl;
+        spdlog::error("Not Valid TOML: " + error_message);
+
+        return nullopt;
+    }
+}
+
+void Log_Settings::config_logger() {
 
     //Create rotating file multi-threaded logger
     auto file_logger = spdlog::rotating_logger_mt("file_logger", this->log_file, 1048576 * 10, 3);
@@ -32,6 +76,6 @@ void Log_Settings::config_logger(){
 }
 
 
-string Server::get_port_as_string(){
+string Server::get_port_as_string() {
     return to_string(this->port);
 }

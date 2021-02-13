@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <thread>
+#include <optional>
 
 #include <asio.hpp>
 #include <CLI11.hpp>
@@ -13,6 +14,8 @@
 
 #include "config.h"
 #include "leasing_calculation.h"
+#include "car.h"
+#include "car_builder.h"
 
 using namespace asio;
 using namespace std;
@@ -21,6 +24,8 @@ int main(int argc, char* argv[]) {
 
     Server server_data;
     Log_Settings logger_settings;
+    string config_file_json{};
+    string config_file_toml{};
 
     CLI::App app("client");
 
@@ -42,12 +47,58 @@ int main(int argc, char* argv[]) {
                   , "Define a file in that the logs are written"
                   , true)->needs(flag_l);
 
+    auto option_j{app.add_option("-j, --config-file-json"
+                                , config_file_json
+                                , "Get the configuration of the program from a JSON file."
+                                )->check(CLI::ExistingFile)};
+
+    app.add_option("-t, --config-file-toml"
+                  , config_file_toml
+                  , "Get the configuration of the program from a TOML file."
+                  )->excludes(option_j)
+                   ->check(CLI::ExistingFile);
+
+
     CLI11_PARSE(app, argc, argv);
 
     logger_settings.config_logger();
 
-    
-    Leasing_Calculation car;
+    if (config_file_json != "") {
+        optional<nlohmann::json> o_json{validate_json(config_file_json)};
 
-    cout << car.calculate_insurance() << endl;
+        if (o_json.has_value()) {
+            nlohmann::json json = o_json.value();
+        } else {
+            exit(1);
+        }
+    } else if (config_file_toml != "") {
+        optional<toml::table> o_toml{validate_toml(config_file_toml)};
+
+        if (o_toml.has_value()) {
+            toml::table toml = o_toml.value();
+        } else {
+            exit(1);
+        }
+    }
+
+
+    optional<Car> o_car{Car_Builder().ps(80)->purchase_value(16000)->build()};
+
+    if (o_car.has_value()) {
+         Car car = o_car.value();
+
+        Leasing_Calculation l;
+
+        l.set_car(car);
+        l.set_insurance_class(0);
+        l.set_leasing_duration(5);
+        l.set_rest_value(0);
+        l.set_deposit(7000);
+        l.is_over_24();
+
+        cout << "Leasingrate: " << l.calculate_leasing_rate().value_or(0) << endl;
+        cout << "Insurcane: " << l.calculate_insurance().value_or(0) << endl;
+    } else {
+        cerr << "Car Builder failed" << endl;
+    }
 }

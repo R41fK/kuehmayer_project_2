@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
 
     Server server_data;
     Log_Settings logger_settings;
+    string config_file_json{};
+    string config_file_toml{};
 
     CLI::App app("client");
 
@@ -40,7 +42,37 @@ int main(int argc, char* argv[]) {
                   , "Define a file in that the logs are written"
                   , true)->needs(flag_l);
 
+    auto option_j{app.add_option("-j, --config-file-json"
+                                , config_file_json
+                                , "Get the configuration of the program from a JSON file."
+                                )->check(CLI::ExistingFile)};
+
+    app.add_option("-t, --config-file-toml"
+                  , config_file_toml
+                  , "Get the configuration of the program from a TOML file."
+                  )->excludes(option_j)
+                   ->check(CLI::ExistingFile);
+    
+
     CLI11_PARSE(app, argc, argv);
 
     logger_settings.config_logger();
+
+    if (config_file_json != "") {
+        optional<nlohmann::json> o_json{validate_json(config_file_json)};
+
+        if (o_json.has_value()) {
+            nlohmann::json json = o_json.value();
+        } else {
+            exit(1);
+        }
+    } else if (config_file_toml != "") {
+        optional<toml::table> o_toml{validate_toml(config_file_toml)};
+
+        if (o_toml.has_value()) {
+            toml::table toml = o_toml.value();
+        } else {
+            exit(1);
+        }
+    }
 }

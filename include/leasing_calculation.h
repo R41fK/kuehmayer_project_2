@@ -1,40 +1,33 @@
-enum Car_Types {
-    sedan,
-    coupe,
-    sports_car,
-    station_wagon,
-    hatchback,
-    convertible,
-    suv,
-    minivan,
-    pickup_truck
-};
+#pragma once
 
+#include <climits>
+#include <cfloat>
+#include <optional>
 
-enum Car_Brands {
-    vw,
-    audi,
-    mercedes,
-    bmw,
-    skoda,
-    seat
-};
+#include "car.h"
+#include "car_builder.h"
 
 class Leasing_Calculation {
+private:
+    Car car{0, 0, 0, Car_Types::NONE, Car_Brands::NONE,  Fuel_Type::NONE};
 
-    short unsigned int ps{150};
-    short unsigned int leasing_duration;
-    short unsigned int insurance_class{0};
-    double purchase_value{42000};
-    double rest_value;
-    double annual_interest_rate{2.2};
-    bool is_over_24{true};
-       
-    Car_Types car_type;
-    Car_Brands brand;
+    short unsigned int leasing_duration{0};
+    short unsigned int insurance_class{USHRT_MAX};
+    double rest_value{DBL_MAX};
+    double deposit{DBL_MAX};
+    double annual_interest_rate{0.0201};
+    bool _is_over_24{true};
 
-    public:
+public:
 
-    double calculate_leasing(); //https://www.leasingmarkt.de/ratgeber/leasing-lexikon/leasingrechner
-    double calculate_insurance();
+    void set_car(Car);
+    void set_leasing_duration(short unsigned int);
+    void set_insurance_class(short unsigned int);
+    void set_rest_value(double);
+    void set_deposit(double);
+    void is_under_24();
+    void is_over_24();
+
+    std::optional<double> calculate_leasing_rate();
+    std::optional<double> calculate_insurance();    
 };
