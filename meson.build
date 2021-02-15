@@ -68,6 +68,10 @@ client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp',
 
 server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
               'src/leasing_calculation.cpp', 'src/car.cpp', 'src/car_builder.cpp']
+
+test_src = ['tests/main_tests.cpp', 'tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
+            'tests/leasing_calculation_tests.cpp', 'src/leasing_calculation.cpp']
+
 #protobuf: src = ['src/main.cpp', generated]
 
 executable('client',
@@ -78,6 +82,12 @@ executable('client',
 
 executable('server',
            sources : server_src,
+           include_directories : inc_dir,
+           dependencies : [thread_dep]#, protobuf_dep]
+          )
+
+executable('unit_tests',
+           sources : test_src,
            include_directories : inc_dir,
            dependencies : [thread_dep]#, protobuf_dep]
           )

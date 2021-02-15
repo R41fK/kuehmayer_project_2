@@ -5,13 +5,13 @@
 #include "car.h"
 
 class Car_Builder {
-    short unsigned int _ps{80};
+    short unsigned int _ps{0};
     unsigned int _driven_kilometers{0};
-    double _purchase_value{16000};
+    double _purchase_value{0};
 
-    Fuel_Type _fuel_type{Fuel_Type::PETROL};
-    Car_Types _car_type{Car_Types::HATCHBACK};
-    Car_Brands _brand{Car_Brands::VW};
+    Fuel_Type _fuel_type{Fuel_Type::NONE};
+    Car_Types _car_type{Car_Types::NONE};
+    Car_Brands _brand{Car_Brands::NONE};
 
 public:
 
@@ -25,4 +25,6 @@ public:
     Car_Builder* fuel_type(Fuel_Type);
 
     std::optional<Car> build();
+
+    bool operator==(const Car_Builder) const;
 };

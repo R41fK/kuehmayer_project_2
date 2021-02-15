@@ -62,7 +62,6 @@ public:
     Car_Brands get_brand();
     Fuel_Type get_fuel_type();
 
-    explicit operator bool() {
-        return ps != 0 && purchase_value != 0;
-    }
+    explicit operator bool();
+    bool operator==(const Car) const;
 };

@@ -37,3 +37,17 @@ Car_Brands Car::get_brand() {
 Fuel_Type Car::get_fuel_type() {
     return this->fuel_type;
 }
+
+Car::operator bool() {
+    return ps != 0 && purchase_value != 0;
+}
+
+bool Car::operator==(const Car car) const {
+    return this->ps == car.ps
+        && this->purchase_value == car.purchase_value
+        && this->driven_kilometers == car.driven_kilometers
+        && this->brand == car.brand
+        && this->fuel_type == car.fuel_type
+        && this->car_type == car.car_type
+        ;
+}

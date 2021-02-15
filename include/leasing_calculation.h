@@ -29,5 +29,5 @@ public:
     void is_over_24();
 
     std::optional<double> calculate_leasing_rate();
-    std::optional<double> calculate_insurance();    
+    std::optional<double> calculate_insurance_rate();
 };

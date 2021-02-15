@@ -70,3 +70,14 @@ optional<Car> Car_Builder::build(){
                this->_car_type, this->_brand, this->_fuel_type);
     }
 }
+
+
+bool Car_Builder::operator==(const Car_Builder car_builder) const {
+    return this->_ps == car_builder._ps
+        && this->_purchase_value == car_builder._purchase_value
+        && this->_driven_kilometers == car_builder._driven_kilometers
+        && this->_fuel_type == car_builder._fuel_type
+        && this->_car_type == car_builder._car_type
+        && this->_brand == car_builder._brand
+        ;
+}

@@ -11,7 +11,7 @@ using namespace peg;
 
 
 void Repl::show_help() {
-    
+    cout << "Help" << endl;
 }
 
 
@@ -19,8 +19,7 @@ void Repl::show_help() {
 
 void Repl::stop() {
     this->running = false;
-
-
+    cout << "Stop" << endl;
 }
 
 void Repl::operator()() {

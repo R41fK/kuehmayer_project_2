@@ -7,9 +7,11 @@
 
 using namespace std;
 
-optional<double> Leasing_Calculation::calculate_insurance() {
+optional<double> Leasing_Calculation::calculate_insurance_rate() {
 
-    if (!car || this->insurance_class == USHRT_MAX) {
+    if (  !car 
+       || this->insurance_class == USHRT_MAX
+       ) {
         return nullopt;
     } else {
         return  ((this->car.get_purchase_value() / 8500)
@@ -28,8 +30,8 @@ optional<double> Leasing_Calculation::calculate_leasing_rate() {
     if (  !car 
        || this->rest_value == DBL_MAX 
        || this->leasing_duration == 0 
-       || this->deposit == DBL_MAX) 
-    {
+       || this->deposit == DBL_MAX
+       ) {
         return nullopt;
     } else {
         double mont_amor{

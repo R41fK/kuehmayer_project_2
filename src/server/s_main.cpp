@@ -26,26 +26,32 @@ int main(int argc, char* argv[]) {
 
     app.add_option("-p, --port", server_data.port, "port to connect to", true);
 
+
     app.add_option("-s, --server-ip", server_data.ip, "server-ip to connect to", true);
+
 
     auto flag_l{app.add_flag("-l, --log-to-file"
                             , logger_settings.log_to_file
                             , "Set if the program should log to a file")};
+
 
     app.add_flag("-d, --log-level-debug"
                 , logger_settings.log_level_debug
                 , "Sets the loginglevel for log-to-file to debug (default=info)")
                 ->needs(flag_l);
 
+
     app.add_option("--log-file"
                   , logger_settings.log_file
                   , "Define a file in that the logs are written"
                   , true)->needs(flag_l);
 
+
     auto option_j{app.add_option("-j, --config-file-json"
                                 , config_file_json
                                 , "Get the configuration of the program from a JSON file."
                                 )->check(CLI::ExistingFile)};
+                                
 
     app.add_option("-t, --config-file-toml"
                   , config_file_toml

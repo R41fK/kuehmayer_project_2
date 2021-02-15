@@ -15,12 +15,15 @@
 - src/client/repl.cpp
 - src/server/
 - src/server/s_main.cpp
-- src/test/
 - src/car_builder.cpp
 - src/car.cpp
 - src/config.cpp
 - src/leasing_calculation.cpp
 - src/pystring.cpp
+- tests/
+- tests/test_car.cpp
+- tests/leasing_calculation_tests.cpp
+- tests/main_tests.cpp
 *** Deleted
 - src/main.cpp
 *** Updated
