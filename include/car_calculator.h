@@ -7,7 +7,7 @@
 #include "car.h"
 #include "car_builder.h"
 
-class Leasing_Calculation {
+class Car_Calculator {
 private:
     Car car{0, 0, 0, Car_Types::NONE, Car_Brands::NONE,  Fuel_Type::NONE};
 

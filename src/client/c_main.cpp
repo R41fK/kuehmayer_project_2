@@ -13,9 +13,10 @@
 #include <toml.hpp>
 
 #include "config.h"
-#include "leasing_calculation.h"
+#include "car_calculator.h"
 #include "car.h"
 #include "car_builder.h"
+#include "client/repl.h"
 
 using namespace asio;
 using namespace std;
@@ -92,7 +93,7 @@ int main(int argc, char* argv[]) {
 
     if (o_car.has_value()) {
 
-        Leasing_Calculation l;
+        Car_Calculator l;
 
         l.set_car(o_car.value());
         l.set_insurance_class(0);
@@ -106,4 +107,9 @@ int main(int argc, char* argv[]) {
     } else {
         cerr << "Car Builder failed" << endl;
     }
+
+    bool running = true;
+    std::thread tr{Repl(ref(running))};
+
+    tr.join();
 }

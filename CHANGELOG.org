@@ -1,5 +1,8 @@
 * Changelog
 ** [Unreleased]
+
+
+** [0.0.2] - 2021-02-16
 *** Added
 - include/client/
 - include/client/repl.h
@@ -8,7 +11,7 @@
 - include/car_builder.h
 - include/car.h
 - include/config.h
-- include/leasing_calculation.h
+- include/car_calculator.h
 - include/pystring.h
 - src/client/
 - src/client/c_main.cpp
@@ -18,11 +21,11 @@
 - src/car_builder.cpp
 - src/car.cpp
 - src/config.cpp
-- src/leasing_calculation.cpp
+- src/car_calculator.cpp
 - src/pystring.cpp
 - tests/
 - tests/test_car.cpp
-- tests/leasing_calculation_tests.cpp
+- tests/car_calculator_test.cpp
 - tests/main_tests.cpp
 *** Deleted
 - src/main.cpp
@@ -31,7 +34,7 @@
 - meson_options.txt
 
 
-** [0.0.1] - 2020-02-08
+** [0.0.1] - 2021-02-08
 *** Added
 - build
 - src

@@ -34,6 +34,9 @@ add_global_arguments('-I' + get_option('peglib_include_dir'), language : 'cpp')
 add_global_arguments('-I' + get_option('fmt_include_dir'), language : 'cpp')
 add_global_arguments('-DFMT_HEADER_ONLY', language : 'cpp')
 
+# magic_enum: https://github.com/Neargye/magic_enum
+add_global_arguments('-I' + get_option('magic_enum_include_dir'), language : 'cpp')
+
 # rang: https://github.com/agauniyal/rang
 add_global_arguments('-I' + get_option('rang_include_dir'), language : 'cpp')
 
@@ -63,14 +66,14 @@ inc_dir = include_directories('include')
 
 
 client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
-              'src/leasing_calculation.cpp', 'src/car.cpp', 'src/car_builder.cpp',
+              'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp',
               'src/client/repl.cpp']
 
 server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
-              'src/leasing_calculation.cpp', 'src/car.cpp', 'src/car_builder.cpp']
+              'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp']
 
 test_src = ['tests/main_tests.cpp', 'tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
-            'tests/leasing_calculation_tests.cpp', 'src/leasing_calculation.cpp']
+            'tests/car_calculator_test.cpp', 'src/car_calculator.cpp']
 
 #protobuf: src = ['src/main.cpp', generated]
 

@@ -3,11 +3,11 @@
 #include <climits>
 #include <cfloat>
 
-#include "leasing_calculation.h"
+#include "car_calculator.h"
 
 using namespace std;
 
-optional<double> Leasing_Calculation::calculate_insurance_rate() {
+optional<double> Car_Calculator::calculate_insurance_rate() {
 
     if (  !car 
        || this->insurance_class == USHRT_MAX
@@ -25,7 +25,7 @@ optional<double> Leasing_Calculation::calculate_insurance_rate() {
 }
 
 
-optional<double> Leasing_Calculation::calculate_leasing_rate() {
+optional<double> Car_Calculator::calculate_leasing_rate() {
 
     if (  !car 
        || this->rest_value == DBL_MAX 
@@ -49,36 +49,36 @@ optional<double> Leasing_Calculation::calculate_leasing_rate() {
 }
 
 
-void Leasing_Calculation::set_car(Car car) {
+void Car_Calculator::set_car(Car car) {
     this->car = car;
 }
 
 
-void Leasing_Calculation::set_leasing_duration(short unsigned int leasing_duration) {
+void Car_Calculator::set_leasing_duration(short unsigned int leasing_duration) {
     this->leasing_duration = leasing_duration;
 }
 
 
-void Leasing_Calculation::set_insurance_class(short unsigned int insurance_class) {
+void Car_Calculator::set_insurance_class(short unsigned int insurance_class) {
     this->insurance_class = insurance_class;
 }
 
 
-void Leasing_Calculation::set_rest_value(double rest_value) {
+void Car_Calculator::set_rest_value(double rest_value) {
     this->rest_value = rest_value;
 }
 
 
-void Leasing_Calculation::set_deposit(double deposit) {
+void Car_Calculator::set_deposit(double deposit) {
     this->deposit = deposit;
 }
 
 
-void Leasing_Calculation::is_under_24() {
+void Car_Calculator::is_under_24() {
     this->_is_over_24 = false;
 }
 
 
-void Leasing_Calculation::is_over_24() {
+void Car_Calculator::is_over_24() {
     this->_is_over_24 = true;
 }
