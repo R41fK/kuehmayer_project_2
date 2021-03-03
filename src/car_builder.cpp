@@ -1,3 +1,6 @@
+#include <sstream>
+
+#include <magic_enum.hpp>
 
 #include "message.pb.h"
 
@@ -81,6 +84,21 @@ bool Car_Builder::operator==(const Car_Builder car_builder) const {
         && this->_brand == car_builder._brand
         ;
 }
+
+std::string Car_Builder::to_string() {
+
+    stringstream strm{};
+    strm << "Car_Builder(ps=" << _ps
+         << ", purchase_value=" << _purchase_value
+         << ", driven_kilometers=" << _driven_kilometers
+         << ", brand=" << magic_enum::enum_name(_brand)
+         << ", fuel_type=" << magic_enum::enum_name(_fuel_type)
+         << ", car_type=" << magic_enum::enum_name(_car_type)
+         << ")";
+
+    return strm.str();
+}
+
 
 std::string Car_Builder::get_proto_message(std::string name) {
     Message_Car* msg_builder = new Message_Car();

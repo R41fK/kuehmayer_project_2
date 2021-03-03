@@ -2,13 +2,18 @@
 
 #include <peglib.h>
 
+
 #include "car.h"
 #include "car_builder.h"
 #include "car_calculator.h"
+#include "config.h"
+
 
 class Repl {
 private:
     bool& running;
+
+    Server server_data;
 
     std::map<std::string, Car> cars{};
     std::map<std::string, Car_Builder> car_builders{};
@@ -29,6 +34,9 @@ private:
                      / NAME 'deposit =' DNUMBER
                      / NAME 'is_under_24'
                      / NAME 'is_over_24'
+                     / NAME 'calculate_leasing'
+                     / NAME 'calculate_insurance'
+                     / NAME 'display'
         
         CAR         <- NAME 'show' 
                      / NAME 'ps'
@@ -40,7 +48,7 @@ private:
                      / NAME 'fuel_type'
 
 
-        CAR_BUILDER <- 'car_builder' NAME 
+        CAR_BUILDER <- 'car_builder' NAME
                      / NAME 'ps =' NUMBER 
                      / NAME 'purchase_value =' DNUMBER
                      / NAME 'driven_kilometer =' NUMBER
@@ -48,6 +56,7 @@ private:
                      / NAME 'car_brand =' CAR_BRANDS
                      / NAME 'car_type =' CAR_TYPES
                      / 'car' NAME '=' NAME 'build'
+                     / NAME 'print' 
 
         FUEL_TYPES  <- 'petrol' / 'diesel' / 'natural_gas' / 'electric'
         CAR_BRANDS  <- 'vw' / 'audi' / 'mercedes' / 'bmw' / 'skoda' / 'seat'
@@ -72,8 +81,10 @@ private:
 
     void no_Car_Calculator(std::string);
 
+    void send_message(std::string);
+
 public:
-    Repl(bool&);
+    Repl(bool&, Server);
 
     // a method that starts the repl, should be started in its own thread
     void operator()();

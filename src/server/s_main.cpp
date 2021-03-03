@@ -11,11 +11,13 @@
 #include <toml.hpp>
 
 #include "config.h"
+#include "server/object_storage.h"
 
 #include "message.pb.h"
 
 using namespace asio;
 using namespace std;
+
 
 int main(int argc, char* argv[]) {
 
@@ -84,6 +86,31 @@ int main(int argc, char* argv[]) {
         } else {
             exit(1);
         }
+    }
+
+    asio::io_context ctx;
+    ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
+    ip::tcp::acceptor acceptor{ctx, ep};
+
+    Object_Storage obst{};
+
+    try {
+        while (1) {
+
+            acceptor.listen();
+            
+            ip::tcp::iostream strm{acceptor.accept()};
+
+            string data{};
+
+            getline(strm, data);
+
+            strm << obst.new_action(data) << endl;;
+
+            strm.close();
+        }
+    } catch (asio::system_error& e) {
+        spdlog::error(e.what()); 
     }
 
     google::protobuf::ShutdownProtobufLibrary();

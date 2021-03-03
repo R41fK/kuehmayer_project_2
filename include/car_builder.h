@@ -30,7 +30,7 @@ public:
     std::optional<Car> build();
 
     bool operator==(const Car_Builder) const;
-
+    std::string to_string();
 
     std::string get_proto_message(std::string);
     void update_car_builder_from_proto_message(Message_Car);

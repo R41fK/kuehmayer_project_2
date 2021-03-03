@@ -73,7 +73,8 @@ client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp',
               'src/client/repl.cpp']
 
 server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
-              'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp']
+              'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp', 
+              'src/server/object_storage.cpp']
 
 test_src = ['tests/main_tests.cpp', 'tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
             'tests/car_calculator_test.cpp', 'src/car_calculator.cpp']

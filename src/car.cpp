@@ -1,3 +1,6 @@
+#include <sstream>
+
+#include <magic_enum.hpp>
 
 #include "message.pb.h"
 
@@ -53,111 +56,20 @@ bool Car::operator==(const Car car) const {
         ;
 }
 
-string Car::get_proto_message(string name) {
+string Car::to_string() {
+    stringstream strm{};
+    strm << "Car(ps=" << ps
+         << ", purchase_value=" << purchase_value
+         << ", driven_kilometers=" << driven_kilometers
+         << ", brand=" << magic_enum::enum_name(brand)
+         << ", fuel_type=" << magic_enum::enum_name(fuel_type)
+         << ", car_type=" << magic_enum::enum_name(car_type)
+         << ")";
 
-    Message_Car* msg_car = new Message_Car();
-
-    msg_car->set_driven_kilometers(this->driven_kilometers);
-
-    msg_car->set_ps(this->ps);
-
-    msg_car->set_purchase_value(this->purchase_value);
-
-    switch (this->brand) {
-        case Car_Brands::AUDI:
-            msg_car->set_brand(Message_Car_Brands::AUDI);
-            break;
-        
-        case Car_Brands::BMW:
-            msg_car->set_brand(Message_Car_Brands::BMW);
-            break;
-        
-        case Car_Brands::MERCEDES:
-            msg_car->set_brand(Message_Car_Brands::MERCEDES);
-            break;
-
-        case Car_Brands::SEAT:
-            msg_car->set_brand(Message_Car_Brands::SEAT);
-            break;
-
-        case Car_Brands::SKODA:
-            msg_car->set_brand(Message_Car_Brands::SKODA);
-            break;
-
-        case Car_Brands::VW:
-            msg_car->set_brand(Message_Car_Brands::VW);
-            break;
-
-        default:
-            msg_car->set_brand(Message_Car_Brands::BRAND_NONE);
-    }
-
-    switch (this->car_type) {
-        case Car_Types::COUPE:
-            msg_car->set_car_type(Message_Car_Types::COUPE);
-            break;
-
-        case Car_Types::HATCHBACK:
-            msg_car->set_car_type(Message_Car_Types::HATCHBACK);
-            break;
-
-        case Car_Types::MINIVAN:
-            msg_car->set_car_type(Message_Car_Types::MINIVAN);
-            break;
-
-        case Car_Types::PICKUP_TRUCK:
-            msg_car->set_car_type(Message_Car_Types::PICKUP_TRUCK);
-            break;
-
-        case Car_Types::SEDAN:
-            msg_car->set_car_type(Message_Car_Types::SEDAN);
-            break;
-
-        case Car_Types::SPORTS_CAR:
-            msg_car->set_car_type(Message_Car_Types::SPORTS_CAR);
-            break;
-
-        case Car_Types::SUV:
-            msg_car->set_car_type(Message_Car_Types::SUV);
-            break;
-
-        default:
-            msg_car->set_car_type(Message_Car_Types::CAR_NONE);
-    }
-
-    switch (this->fuel_type) {
-        case Fuel_Type::DIESEL:
-            msg_car->set_fuel_type(Message_Fuel_Type::DIESEL);
-            break;
-
-        case Fuel_Type::ELECTRONIC:
-            msg_car->set_fuel_type(Message_Fuel_Type::ELECTRONIC);
-            break;
-
-        case Fuel_Type::NATURAL_GAS:
-            msg_car->set_fuel_type(Message_Fuel_Type::NATURAL_GAS);
-            break;
-
-        case Fuel_Type::PETROL:
-            msg_car->set_fuel_type(Message_Fuel_Type::PETROL);
-            break;
-
-        default:
-            msg_car->set_fuel_type(Message_Fuel_Type::FUEL_NONE);
-    }
-
-    Message msg{};
-
-    msg.set_type(Message::MessageType::Message_MessageType_CAR);
-
-    msg.set_name(name);
-
-    msg.set_allocated_car(msg_car);
-
-    return msg.SerializeAsString();
+    return strm.str();
 }
 
-void Car::update_car_from_proto_message(Message_Car msg) {
+Car::Car(Message_Car msg) {
 
     this->driven_kilometers = msg.driven_kilometers();
 

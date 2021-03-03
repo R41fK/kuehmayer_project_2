@@ -2,7 +2,9 @@
 #include <optional>
 #include <climits>
 #include <cfloat>
+#include <sstream>
 
+#include <fmt/core.h>
 #include "message.pb.h"
 
 #include "car_calculator.h"
@@ -84,6 +86,22 @@ void Car_Calculator::is_under_24() {
 void Car_Calculator::is_over_24() {
     this->_is_over_24 = true;
 }
+
+
+string Car_Calculator::to_string() {
+    stringstream strm{};
+    strm << "Car_Calculator(Car=" << car.to_string()
+         << ", leasing_duration=" << leasing_duration
+         << ", insurance_class=" << insurance_class
+         << ", rest_value=" << rest_value
+         << ", deposit=" << deposit
+         << ", annual_interest_rate=" << annual_interest_rate
+         << ", is_over_24=" << _is_over_24
+         << ")";
+
+    return strm.str();
+}
+
 
 string Car_Calculator::get_proto_message(std::string name) {
 
@@ -219,5 +237,5 @@ void Car_Calculator::update_car_calculator_from_proto_message(Message_Car_Calcul
 
     this->_is_over_24 = msg.is_over_24();
 
-    this->car.update_car_from_proto_message(msg.car());
+    this->car = Car(msg.car());
 }

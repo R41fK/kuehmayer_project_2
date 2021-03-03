@@ -34,6 +34,8 @@ public:
     std::optional<double> calculate_leasing_rate();
     std::optional<double> calculate_insurance_rate();
 
+    std::string to_string();
+
     std::string get_proto_message(std::string);
     void update_car_calculator_from_proto_message(Message_Car_Calculator);
 };

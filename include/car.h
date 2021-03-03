@@ -64,9 +64,10 @@ public:
     Car_Brands get_brand();
     Fuel_Type get_fuel_type();
 
+    std::string to_string();
+
     explicit operator bool();
     bool operator==(const Car) const;
 
-    std::string get_proto_message(std::string);
-    void update_car_from_proto_message(Message_Car);
+    Car(Message_Car);
 };

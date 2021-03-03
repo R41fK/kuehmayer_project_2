@@ -6,9 +6,11 @@ import "calculator.proto";
 message Message {
 
     enum MessageType {
-        CAR = 0;
-        BUILDER = 1;
-        CALCULATOR = 2;
+        BUILDER = 0;
+        CALCULATOR = 1;
+        BUILD = 2;
+        CALC_LEASING = 3;
+        CALC_INSURANCE = 4;
     }
 
 
@@ -20,4 +22,5 @@ message Message {
     }
 
     string name = 4;
+    string builder = 5;
 }

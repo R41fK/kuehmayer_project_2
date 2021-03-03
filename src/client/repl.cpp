@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include <bitset>
+#include <asio.hpp>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -9,6 +11,8 @@
 #include "pystring.h"
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
+
+#include "message.pb.h"
 
 #include "client/repl.h"
 #include "car.h"
@@ -20,10 +24,11 @@ using namespace std;
 using namespace peg;
 
 
-Repl::Repl(bool& running):
-    running{running}
+Repl::Repl(bool& running, Server server_data):
+    running{running},
+    server_data{server_data}
     {
-
+        
 
     parser.log = [&](size_t line, size_t col, const string& msg) {
         fmt::print("{}:{}: {}\n", line, col, msg);
@@ -46,6 +51,7 @@ Repl::Repl(bool& running):
         switch (vs.choice()) {
             case 0: // 'car_calculator' NAME
                 car_calculators.insert_or_assign(any_cast<string>(vs[0]), Car_Calculator());
+                this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
                 break;
 
 
@@ -110,6 +116,44 @@ Repl::Repl(bool& running):
                     no_Car_Calculator(any_cast<string>(vs[0]));
                 }
                 break;
+
+            case 8: // NAME 'calculate_leasing'
+                if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+
+                    Message msg{};
+
+                    msg.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
+                    msg.set_name(any_cast<string>(vs[0]));
+
+                    this->send_message(msg.SerializeAsString());
+                } else {
+                    no_Car_Calculator(any_cast<string>(vs[0]));
+                }
+                break;
+
+            case 9: // NAME 'calculate_insurance'
+                if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+
+                    Message msg{};
+
+                    msg.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
+                    msg.set_name(any_cast<string>(vs[0]));
+
+                    this->send_message(msg.SerializeAsString());
+                } else {
+                    no_Car_Calculator(any_cast<string>(vs[0]));
+                }
+                break;
+
+            case 10: // NAME 'display'
+                if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
+                    fmt::print("{}\n", car_calculators.at(any_cast<string>(vs[0])).to_string());
+                } else {
+                    no_Car_Calculator(any_cast<string>(vs[0]));
+                }
+                break;
         }
     };
 
@@ -118,7 +162,7 @@ Repl::Repl(bool& running):
         switch (vs.choice()) {
             case 0: // NAME 'show'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << any_cast<string>(vs[0]) << endl;
+                    fmt::print("{}\n", cars.at(any_cast<string>(vs[0])).to_string());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -127,7 +171,7 @@ Repl::Repl(bool& running):
 
             case 1: // NAME 'ps'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << cars.at(any_cast<string>(vs[0])).get_ps() << endl;
+                    fmt::print("ps = {}\n", cars.at(any_cast<string>(vs[0])).get_ps());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -136,7 +180,7 @@ Repl::Repl(bool& running):
 
             case 2: // NAME 'kw'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << cars.at(any_cast<string>(vs[0])).get_kw() << endl;
+                    fmt::print("kw = {}\n", cars.at(any_cast<string>(vs[0])).get_kw());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -145,7 +189,7 @@ Repl::Repl(bool& running):
 
             case 3: // NAME 'purchase_value'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << cars.at(any_cast<string>(vs[0])).get_purchase_value() << endl;
+                    fmt::print("purchase_value = {}\n", cars.at(any_cast<string>(vs[0])).get_purchase_value());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -154,7 +198,7 @@ Repl::Repl(bool& running):
 
             case 4: // NAME 'driven_kilometers'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << cars.at(any_cast<string>(vs[0])).get_driven_kilometers() << endl;
+                    fmt::print("driven_kilometers = {}\n", cars.at(any_cast<string>(vs[0])).get_driven_kilometers());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -163,7 +207,7 @@ Repl::Repl(bool& running):
 
             case 5: // NAME 'car_type'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_car_type()) << endl;
+                    fmt::print("car_type = {}\n", magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_car_type()));
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -172,7 +216,7 @@ Repl::Repl(bool& running):
 
             case 6: // NAME 'brand'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_brand()) << magic_enum::enum_integer(cars.at(any_cast<string>(vs[0])).get_brand()) << endl;
+                    fmt::print("brand = {}\n", magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_brand()));
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -181,7 +225,7 @@ Repl::Repl(bool& running):
 
             case 7: // NAME 'fuel_type'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_fuel_type()) << endl;
+                    fmt::print("fuel_type = {}\n", magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_fuel_type()));
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -195,6 +239,8 @@ Repl::Repl(bool& running):
         switch (vs.choice()) {
             case 0: //'car_builder' NAME 
                 car_builders.insert_or_assign(any_cast<string>(vs[0]), Car_Builder());
+
+                this->send_message(car_builders.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
                 break;
 
 
@@ -255,11 +301,29 @@ Repl::Repl(bool& running):
             case 7: // 'car' NAME '=' NAME 'build'
                 if (car_builders.find(any_cast<string>(vs[1])) != car_builders.end()) {
                     optional<Car> o_car{car_builders.at(any_cast<string>(vs[1])).build()};
+
                     if (o_car.has_value()) {
+                        this->send_message(car_builders.at(any_cast<string>(vs[1])).get_proto_message(any_cast<string>(vs[1])));
+
                         cars.insert_or_assign(any_cast<string>(vs[0]), o_car.value());
+
+                        Message msg{};
+
+                        msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+                        msg.set_name(any_cast<string>(vs[0]));
+
+                        this->send_message(msg.SerializeAsString());
                     } else {
 
                     }
+                } else {
+                    no_Car_Builder(any_cast<string>(vs[0]));
+                }
+                break;
+
+            case 8: // NAME 'print'
+                if (car_builders.find(any_cast<string>(vs[0])) != car_builders.end()) {
+                    fmt::print("{}\n", car_builders.at(any_cast<string>(vs[0])).to_string());
                 } else {
                     no_Car_Builder(any_cast<string>(vs[0]));
                 }
@@ -352,6 +416,7 @@ void Repl::show_help() {
     end | stop                                      stops the programm
 
     car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
+    <calculator_name> print                         shows the car_calculator object for the object with the name <calculator_name>
     <calculator_name> car = <car_name>              sets the car for the car_calculator with the name <calculator_name>
     <calculator_name> leasing_duration = <int>      sets the leasing_duration for the car_calculator with the name <calculator_name> 
     <calculator_name> insurance_class = <int>       sets the insurance_class for the car_calculator with the name <calculator_name>
@@ -361,6 +426,7 @@ void Repl::show_help() {
     <calculator_name> is_over_24                    sets that the person is over 24 for the car_calculator with the name <calculator_name>
 
     car_builder <builder_name>                      creates a car_builder with the name <builder_name>
+    <builder_name> print                            shows the car_builder object for the object with the name <builder_name>
     <builder_name> ps = <int>                       sets the ps for the car_builder with the name <builder_name>
     <builder_name> purchase_value = <double>        sets the purchase_value for the car_builder with the name <builder_name>
     <builder_name> driven_kilometer = <int>         sets the driven_kilometer for the car_builder with the name <builder_name>
@@ -387,13 +453,6 @@ void Repl::show_help() {
 }
 
 
-
-
-void Repl::stop() {
-    this->running = false;
-    fmt::print("Stoped\n");
-}
-
 void Repl::no_Car_Builder(string s) {
     fmt::print("No Car_Builder with this name: {}\n", s);
 }
@@ -406,6 +465,41 @@ void Repl::no_Car_Calculator(string s) {
     fmt::print("No Car_Calculator with this name: {}\n", s);
 }
 
+
+string to_hex(string data)
+{
+    stringstream sstream;
+
+    for(char ch : data) {
+        sstream << " " << std::hex << (int)ch;
+    }
+
+    return sstream.str();
+}
+
+
+
+void Repl::send_message(string msg) {
+    asio::ip::tcp::iostream strm{server_data.ip, server_data.get_port_as_string()};
+
+   if (strm) {
+        strm << to_hex(msg) << endl;
+
+        string data;
+
+        getline(strm, data);
+
+        if (data != "") fmt::print("{}\n", data);
+
+        strm.close();
+   }
+}
+
+
+void Repl::stop() {
+    this->running = false;
+    fmt::print("Stoped\n");
+}
 
 void Repl::operator()() {
 
