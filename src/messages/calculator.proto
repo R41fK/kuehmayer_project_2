@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "car.proto";
+
+message Message_Car_Calculator {
+
+    Message_Car car = 1;
+
+    uint32 leasing_duration = 2;
+    uint32 insurance_class = 3;
+    double rest_value = 4;
+    double deposit = 5;
+    double annual_interest_rate = 6;
+    bool is_over_24 = 7;
+}

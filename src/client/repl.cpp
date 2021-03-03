@@ -15,136 +15,22 @@
 #include "car_builder.h"
 #include "car_calculator.h"
 
+
 using namespace std;
 using namespace peg;
 
 
-void Repl::show_help() {
-    fmt::print(
-    R"(Commands:
-    help | h                                        shows this help message
-    end | stop                                      stops the programm
+Repl::Repl(bool& running):
+    running{running}
+    {
 
-    car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
-    <calculator_name> car = <car_name>              sets the car for the car_calculator with the name <calculator_name>
-    <calculator_name> leasing_duration = <int>      sets the leasing_duration for the car_calculator with the name <calculator_name> 
-    <calculator_name> insurance_class = <int>       sets the insurance_class for the car_calculator with the name <calculator_name>
-    <calculator_name> rest_value = <double>         sets the rest_value for the car_calculator with the name <calculator_name>
-    <calculator_name> deposit = <double>            sets the deposite for the car_calculator with the name <calculator_name>
-    <calculator_name> is_under_24                   sets that the person is under 24 for the car_calculator with the name <calculator_name>
-    <calculator_name> is_over_24                    sets that the person is over 24 for the car_calculator with the name <calculator_name>
-
-    car_builder <builder_name>                      creates a car_builder with the name <builder_name>
-    <builder_name> ps = <int>                       sets the ps for the car_builder with the name <builder_name>
-    <builder_name> purchase_value = <double>        sets the purchase_value for the car_builder with the name <builder_name>
-    <builder_name> driven_kilometer = <int>         sets the driven_kilometer for the car_builder with the name <builder_name>
-    <builder_name> fuel_type = <fuel_types>         sets the fuel_type for the car_builder with the name <builder_name>
-    <builder_name> car_brand = <car_brands>         sets the car_brand for the car_builder with the name <builder_name>
-    <builder_name> car_type = <car_type>            sets the car_type for the car_builder with the name <builder_name>
-
-    car <car_name> = <builder_name> build           creates a car with the name <car_name> from a car_builder with the name <builder_name>
-    <car_name> show                                 shows the car object for the object with the name <car_name>
-    <car_name> ps                                   shows the ps for the object with the name <car_name>
-    <car_name> kw                                   shows the kw for the object with the name <car_name>
-    <car_name> purchase_value                       shows the purchase_value for the object with the name <car_name>
-    <car_name> driven_kilometers                    shows the driven_kilometers for the object with the name <car_name>
-    <car_name> car_type                             shows the car_type for the object with the name <car_name>
-    <car_name> brand                                shows the brand for the object with the name <car_name>
-    <car_name> fuel_type                            shows the fuel_type for the object with the name <car_name>
-
-    <fuel_types> = petrol | diesel | natural_gas | electric
-    <car_brands> = vw | audi | mercedes | bmw | skoda | seat
-    <car_type>   = sedan | coupe | sports_car | hatchback | suv | minivan | pickup_truck
-
-)"
-    );
-}
-
-
-
-
-void Repl::stop() {
-    this->running = false;
-    fmt::print("Stoped\n");
-}
-
-void no_Car_Builder(string s) {
-    fmt::print("No Car_Builder with this name: {}\n", s);
-}
-
-void no_Car(string s) {
-    fmt::print("No Car with this name: {}\n", s);
-}
-
-void no_Car_Calculator(string s) {
-    fmt::print("No Car_Calculator with this name: {}\n", s);
-}
-
-
-void Repl::operator()() {
-
-    string input{};
-
-    map<string, Car> cars{};
-    map<string, Car_Builder> car_builders{};
-    map<string, Car_Calculator> car_calculators{};
-
-    auto grammar  {R"(
-        START       <- HELP / CAR_BUILDER / CALCULATOR / CAR / END
-
-        HELP        <- 'help' / 'h'
-
-        END         <- 'end' / 'stop'
-
-        CALCULATOR  <- 'car_calculator' NAME
-                     / NAME 'car =' NAME
-                     / NAME 'leasing_duration =' NUMBER
-                     / NAME 'insurance_class =' NUMBER
-                     / NAME 'rest_value =' DNUMBER
-                     / NAME 'deposit =' DNUMBER
-                     / NAME 'is_under_24'
-                     / NAME 'is_over_24'
-        
-        CAR         <- NAME 'show' 
-                     / NAME 'ps'
-                     / NAME 'kw'
-                     / NAME 'purchase_value'
-                     / NAME 'driven_kilometers'
-                     / NAME 'car_type'
-                     / NAME 'brand'
-                     / NAME 'fuel_type'
-
-
-        CAR_BUILDER <- 'car_builder' NAME 
-                     / NAME 'ps =' NUMBER 
-                     / NAME 'purchase_value =' DNUMBER
-                     / NAME 'driven_kilometer =' NUMBER
-                     / NAME 'fuel_type =' FUEL_TYPES
-                     / NAME 'car_brand =' CAR_BRANDS
-                     / NAME 'car_type =' CAR_TYPES
-                     / 'car' NAME '=' NAME 'build'
-
-        FUEL_TYPES  <- 'petrol' / 'diesel' / 'natural_gas' / 'electric'
-        CAR_BRANDS  <- 'vw' / 'audi' / 'mercedes' / 'bmw' / 'skoda' / 'seat'
-        CAR_TYPES   <- 'sedan' / 'coupe' / 'sports_car' / 'hatchback' / 'suv' / 'minivan' / 'pickup_truck'
-        NUMBER      <- < [0-9]+ >
-        DNUMBER     <- < [0-9]+ ('.'[0-9]+)? >
-        NAME        <- < [a-z]+ >
-        %whitespace <- [ \t]*
-    )"};
-    
-
-    parser parser;
 
     parser.log = [&](size_t line, size_t col, const string& msg) {
         fmt::print("{}:{}: {}\n", line, col, msg);
         show_help();
     };
 
-    auto ok = parser.load_grammar(grammar);
-    assert(ok);
-    assert(static_cast<bool>(parser) == true);
-
+    parser.load_grammar(grammar);
 
     parser["HELP"] = [this](const SemanticValues) {
         this->show_help();
@@ -286,7 +172,7 @@ void Repl::operator()() {
 
             case 6: // NAME 'brand'
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    cout << magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_brand()) << endl;
+                    cout << magic_enum::enum_name(cars.at(any_cast<string>(vs[0])).get_brand()) << magic_enum::enum_integer(cars.at(any_cast<string>(vs[0])).get_brand()) << endl;
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }
@@ -457,7 +343,73 @@ void Repl::operator()() {
         return vs.token_to_number<double>();
     };
 
+}
 
+void Repl::show_help() {
+    fmt::print(
+    R"(Commands:
+    help | h                                        shows this help message
+    end | stop                                      stops the programm
+
+    car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
+    <calculator_name> car = <car_name>              sets the car for the car_calculator with the name <calculator_name>
+    <calculator_name> leasing_duration = <int>      sets the leasing_duration for the car_calculator with the name <calculator_name> 
+    <calculator_name> insurance_class = <int>       sets the insurance_class for the car_calculator with the name <calculator_name>
+    <calculator_name> rest_value = <double>         sets the rest_value for the car_calculator with the name <calculator_name>
+    <calculator_name> deposit = <double>            sets the deposite for the car_calculator with the name <calculator_name>
+    <calculator_name> is_under_24                   sets that the person is under 24 for the car_calculator with the name <calculator_name>
+    <calculator_name> is_over_24                    sets that the person is over 24 for the car_calculator with the name <calculator_name>
+
+    car_builder <builder_name>                      creates a car_builder with the name <builder_name>
+    <builder_name> ps = <int>                       sets the ps for the car_builder with the name <builder_name>
+    <builder_name> purchase_value = <double>        sets the purchase_value for the car_builder with the name <builder_name>
+    <builder_name> driven_kilometer = <int>         sets the driven_kilometer for the car_builder with the name <builder_name>
+    <builder_name> fuel_type = <fuel_types>         sets the fuel_type for the car_builder with the name <builder_name>
+    <builder_name> car_brand = <car_brands>         sets the car_brand for the car_builder with the name <builder_name>
+    <builder_name> car_type = <car_type>            sets the car_type for the car_builder with the name <builder_name>
+
+    car <car_name> = <builder_name> build           creates a car with the name <car_name> from a car_builder with the name <builder_name>
+    <car_name> show                                 shows the car object for the object with the name <car_name>
+    <car_name> ps                                   shows the ps for the object with the name <car_name>
+    <car_name> kw                                   shows the kw for the object with the name <car_name>
+    <car_name> purchase_value                       shows the purchase_value for the object with the name <car_name>
+    <car_name> driven_kilometers                    shows the driven_kilometers for the object with the name <car_name>
+    <car_name> car_type                             shows the car_type for the object with the name <car_name>
+    <car_name> brand                                shows the brand for the object with the name <car_name>
+    <car_name> fuel_type                            shows the fuel_type for the object with the name <car_name>
+
+    <fuel_types> = petrol | diesel | natural_gas | electric
+    <car_brands> = vw | audi | mercedes | bmw | skoda | seat
+    <car_type>   = sedan | coupe | sports_car | hatchback | suv | minivan | pickup_truck
+
+)"
+    );
+}
+
+
+
+
+void Repl::stop() {
+    this->running = false;
+    fmt::print("Stoped\n");
+}
+
+void Repl::no_Car_Builder(string s) {
+    fmt::print("No Car_Builder with this name: {}\n", s);
+}
+
+void Repl::no_Car(string s) {
+    fmt::print("No Car with this name: {}\n", s);
+}
+
+void Repl::no_Car_Calculator(string s) {
+    fmt::print("No Car_Calculator with this name: {}\n", s);
+}
+
+
+void Repl::operator()() {
+
+    string input{};
 
     while (this->running) {
         

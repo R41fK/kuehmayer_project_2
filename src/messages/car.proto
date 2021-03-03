@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+enum Message_Car_Types {
+    CAR_NONE = 0;
+    SEDAN = 1;
+    COUPE = 2;
+    SPORTS_CAR = 3;
+    HATCHBACK = 4;
+    SUV = 5;
+    MINIVAN = 6;
+    PICKUP_TRUCK = 7;
+};
+
+
+enum Message_Car_Brands {
+    BRAND_NONE = 0;
+    VW = 1;
+    AUDI = 2;
+    MERCEDES = 3;
+    BMW = 4;
+    SKODA = 5;
+    SEAT = 6;
+};
+
+enum Message_Fuel_Type {
+    FUEL_NONE = 0;
+    PETROL = 1;
+    DIESEL = 2;
+    NATURAL_GAS = 3;
+    ELECTRONIC = 4;
+};
+
+message Message_Car {
+
+    uint32 ps = 1;
+    uint32 driven_kilometers = 2;
+    double purchase_value = 3;
+
+    Message_Fuel_Type fuel_type = 4;
+    Message_Car_Types car_type = 5;
+    Message_Car_Brands brand = 6;
+}

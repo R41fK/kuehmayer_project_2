@@ -3,6 +3,9 @@
 #include <climits>
 #include <cfloat>
 #include <optional>
+#include <string>
+
+#include "message.pb.h"
 
 #include "car.h"
 #include "car_builder.h"
@@ -30,4 +33,7 @@ public:
 
     std::optional<double> calculate_leasing_rate();
     std::optional<double> calculate_insurance_rate();
+
+    std::string get_proto_message(std::string);
+    void update_car_calculator_from_proto_message(Message_Car_Calculator);
 };

@@ -12,10 +12,14 @@
 
 #include "config.h"
 
+#include "message.pb.h"
+
 using namespace asio;
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     Server server_data;
     Log_Settings logger_settings;
@@ -81,4 +85,6 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
     }
+
+    google::protobuf::ShutdownProtobufLibrary();
 }

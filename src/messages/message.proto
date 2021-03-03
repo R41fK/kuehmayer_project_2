@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "car.proto";
+import "calculator.proto";
+
+message Message {
+
+    enum MessageType {
+        CAR = 0;
+        BUILDER = 1;
+        CALCULATOR = 2;
+    }
+
+
+    MessageType type = 1;
+    
+    oneof message {
+        Message_Car car = 2;
+        Message_Car_Calculator calculator = 3;
+    }
+
+    string name = 4;
+}

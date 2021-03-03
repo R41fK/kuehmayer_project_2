@@ -18,10 +18,14 @@
 #include "car_builder.h"
 #include "client/repl.h"
 
+#include "message.pb.h"
+
 using namespace asio;
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     Server server_data;
     Log_Settings logger_settings;
@@ -112,4 +116,6 @@ int main(int argc, char* argv[]) {
     std::thread tr{Repl(ref(running))};
 
     tr.join();
+
+    google::protobuf::ShutdownProtobufLibrary();
 }

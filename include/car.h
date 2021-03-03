@@ -1,33 +1,37 @@
 #pragma once
 
+#include <string>
+
+#include "message.pb.h"
+
 enum class Car_Types {
+    NONE,
     SEDAN,
     COUPE,
     SPORTS_CAR,
     HATCHBACK,
     SUV,
     MINIVAN,
-    PICKUP_TRUCK,
-    NONE
+    PICKUP_TRUCK
 };
 
 
 enum class Car_Brands {
+    NONE,
     VW,
     AUDI,
     MERCEDES,
     BMW,
     SKODA,
-    SEAT,
-    NONE
+    SEAT
 };
 
 enum class Fuel_Type {
+    NONE,
     PETROL,
     DIESEL,
     NATURAL_GAS,
-    ELECTRONIC,
-    NONE
+    ELECTRONIC
 };
 
 class Car {
@@ -62,4 +66,7 @@ public:
 
     explicit operator bool();
     bool operator==(const Car) const;
+
+    std::string get_proto_message(std::string);
+    void update_car_from_proto_message(Message_Car);
 };

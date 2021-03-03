@@ -1,7 +1,7 @@
 # uncomment as necessary
 project('Remote Method Invocation System', 'cpp',
         license : ['Boost'],
-        version : '0.1',
+        version : '0.0.4',
         default_options : ['cpp_std=c++17', 'warning_level=3', 'werror=true'])
 
 thread_dep = dependency('threads')
@@ -49,18 +49,21 @@ add_global_arguments('-I' + get_option('sqlite_orm_include_dir'), language : 'cp
 
 # # begin protobuf: https://developers.google.com/protocol-buffers/
 # # protobuf: must be installed independently and has to be found...
-#protoc = find_program('protoc', required : true)
-#protobuf_dep = dependency('protobuf', required : true)
+protoc = find_program('protoc', required : true)
+protobuf_dep = dependency('protobuf', required : true)
 
-# gen = generator(protoc, \
-#   output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
-#   arguments : ['--proto_path=@CURRENT_SOURCE_DIR@/src', '--cpp_out=@BUILD_DIR@', '@PLAINNAME@'])
+gen = generator(protoc, \
+  output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
+  arguments : ['--proto_path=@CURRENT_SOURCE_DIR@/src/messages/', '--cpp_out=@BUILD_DIR@', '@PLAINNAME@'])
 
-# # change proto file accordingly
-# generated = gen.process('src/dummy.proto')
-# # end protobuf
+# change proto file accordingly
+proto = gen.process( 'src/messages/message.proto'
+                   , 'src/messages/car.proto'
+                   , 'src/messages/calculator.proto'
+                   )
+# end protobuf
 
-# subdir('SUBDIR1')
+#subdir('SUBDIR1')
 
 inc_dir = include_directories('include')
 
@@ -77,20 +80,20 @@ test_src = ['tests/main_tests.cpp', 'tests/car_tests.cpp', 'src/car.cpp', 'src/c
 
 #protobuf: src = ['src/main.cpp', generated]
 
-executable('client',
+executable('client', proto,
            sources : client_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep]#, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep]
           )
 
-executable('server',
+executable('server', proto,
            sources : server_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep]#, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep]
           )
 
-executable('unit_tests',
+executable('unit_tests', proto,
            sources : test_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep]#, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep]
           )
