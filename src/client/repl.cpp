@@ -14,6 +14,7 @@
 
 #include "message.pb.h"
 
+#include "message_utility.h"
 #include "client/repl.h"
 #include "car.h"
 #include "car_builder.h"
@@ -24,11 +25,13 @@ using namespace std;
 using namespace peg;
 
 
+
 Repl::Repl(bool& running, Server server_data):
     running{running},
     server_data{server_data}
     {
         
+    this->strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
     parser.log = [&](size_t line, size_t col, const string& msg) {
         fmt::print("{}:{}: {}\n", line, col, msg);
@@ -51,13 +54,18 @@ Repl::Repl(bool& running, Server server_data):
         switch (vs.choice()) {
             case 0: // 'car_calculator' NAME
                 car_calculators.insert_or_assign(any_cast<string>(vs[0]), Car_Calculator());
-                this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+                this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
                 break;
 
 
             case 1: // NAME 'car =' NAME
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    car_calculators.at(any_cast<string>(vs[0])).set_car(cars.at(any_cast<string>(vs[1])));
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), any_cast<string>(vs[1])));
+
+                    if (cars.find(any_cast<string>(vs[1])) != cars.end()) {
+                        car_calculators.at(any_cast<string>(vs[0])).set_car(cars.at(any_cast<string>(vs[1])));
+                    }
+                    
                 } else {
                     no_Car_Calculator(any_cast<string>(vs[0]));
                 }
@@ -119,7 +127,7 @@ Repl::Repl(bool& running, Server server_data):
 
             case 8: // NAME 'calculate_leasing'
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
 
                     Message msg{};
 
@@ -134,7 +142,7 @@ Repl::Repl(bool& running, Server server_data):
 
             case 9: // NAME 'calculate_insurance'
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
 
                     Message msg{};
 
@@ -302,20 +310,19 @@ Repl::Repl(bool& running, Server server_data):
                 if (car_builders.find(any_cast<string>(vs[1])) != car_builders.end()) {
                     optional<Car> o_car{car_builders.at(any_cast<string>(vs[1])).build()};
 
+                    this->send_message(car_builders.at(any_cast<string>(vs[1])).get_proto_message(any_cast<string>(vs[1])));
+
+                    Message msg{};
+
+                    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+                    msg.set_name(any_cast<string>(vs[0]));
+                    msg.set_builder(any_cast<string>(vs[1]));
+
+                    this->send_message(msg.SerializeAsString());
+
                     if (o_car.has_value()) {
-                        this->send_message(car_builders.at(any_cast<string>(vs[1])).get_proto_message(any_cast<string>(vs[1])));
-
                         cars.insert_or_assign(any_cast<string>(vs[0]), o_car.value());
-
-                        Message msg{};
-
-                        msg.set_type(Message::MessageType::Message_MessageType_BUILD);
-                        msg.set_name(any_cast<string>(vs[0]));
-
-                        this->send_message(msg.SerializeAsString());
-                    } else {
-
-                    }
+                    } 
                 } else {
                     no_Car_Builder(any_cast<string>(vs[0]));
                 }
@@ -466,38 +473,29 @@ void Repl::no_Car_Calculator(string s) {
 }
 
 
-string to_hex(string data)
-{
-    stringstream sstream;
-
-    for(char ch : data) {
-        sstream << " " << std::hex << (int)ch;
-    }
-
-    return sstream.str();
-}
-
-
-
 void Repl::send_message(string msg) {
-    asio::ip::tcp::iostream strm{server_data.ip, server_data.get_port_as_string()};
 
-   if (strm) {
-        strm << to_hex(msg) << endl;
+   if (*strm) {
+        *strm << message_utility::to_hex(msg) << endl;
 
         string data;
 
-        getline(strm, data);
+        getline(*strm, data);
+        data = message_utility::from_hex(data);
 
         if (data != "") fmt::print("{}\n", data);
+        
+   } else {
 
-        strm.close();
+       this->strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
+       this->send_message(msg);
    }
 }
 
 
 void Repl::stop() {
     this->running = false;
+    strm->close();
     fmt::print("Stoped\n");
 }
 

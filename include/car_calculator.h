@@ -36,6 +36,6 @@ public:
 
     std::string to_string();
 
-    std::string get_proto_message(std::string);
+    std::string get_proto_message(std::string, std::string);
     void update_car_calculator_from_proto_message(Message_Car_Calculator);
 };

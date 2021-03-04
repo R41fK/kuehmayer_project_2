@@ -19,7 +19,7 @@ struct Server {
 
 struct Log_Settings {
 
-    std::string log_file{"logs/control.log"};
+    std::string log_file{};
     bool log_to_file{false};
     bool log_level_debug{false};
 

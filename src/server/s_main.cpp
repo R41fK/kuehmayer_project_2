@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 #include <toml.hpp>
 
+#include "message_utility.h"
 #include "config.h"
 #include "server/object_storage.h"
 
@@ -25,16 +26,13 @@ int main(int argc, char* argv[]) {
 
     Server server_data;
     Log_Settings logger_settings;
+    logger_settings.log_file = "logs/server.log";
     string config_file_json{};
     string config_file_toml{};
 
     CLI::App app("client");
 
     app.add_option("-p, --port", server_data.port, "port to connect to", true);
-
-
-    app.add_option("-s, --server-ip", server_data.ip, "server-ip to connect to", true);
-
 
     auto flag_l{app.add_flag("-l, --log-to-file"
                             , logger_settings.log_to_file
@@ -94,20 +92,32 @@ int main(int argc, char* argv[]) {
 
     Object_Storage obst{};
 
+    spdlog::info("Started Server!");
+
     try {
         while (1) {
-
             acceptor.listen();
-            
+                
             ip::tcp::iostream strm{acceptor.accept()};
 
-            string data{};
+            spdlog::info("Client connected to Server");
 
-            getline(strm, data);
+            while (strm) {            
 
-            strm << obst.new_action(data) << endl;;
+                string data{};
+
+                getline(strm, data);
+
+                if (strm) {
+                    spdlog::debug(fmt::format("server got message {}", data));
+
+                    strm << message_utility::to_hex(obst.new_action(data)) << endl;;
+                }
+            }
 
             strm.close();
+
+            spdlog::info("Client disconnected");
         }
     } catch (asio::system_error& e) {
         spdlog::error(e.what()); 

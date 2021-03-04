@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
 
     Server server_data;
     Log_Settings logger_settings;
+    logger_settings.log_file = "logs/client.log";
     string config_file_json{};
     string config_file_toml{};
 
@@ -90,49 +91,6 @@ int main(int argc, char* argv[]) {
         } else {
             exit(1);
         }
-    }
-
-
-    optional<Car> o_car{Car_Builder().ps(80)->purchase_value(16000)->build()};
-
-    if (o_car.has_value()) {
-
-        Car_Calculator l;
-
-        l.set_car(o_car.value());
-        l.set_insurance_class(0);
-        l.set_leasing_duration(5);
-        l.set_rest_value(0);
-        l.set_deposit(7000);
-        l.is_over_24();
-
-        cout << "Leasingrate: " << l.calculate_leasing_rate().value_or(0) << endl;
-        cout << "Insurcane: " << l.calculate_insurance_rate().value_or(0) << endl;
-
-        string s = l.get_proto_message("Ralf");
-
-        l.is_under_24();
-        l.set_deposit(0);
-
-        cout << "Leasingrate: " << l.calculate_leasing_rate().value_or(0) << endl;
-        cout << "Insurcane: " << l.calculate_insurance_rate().value_or(0) << endl;
-
-        Message msg{};
-
-        cout << s << endl;
-
-        msg.ParseFromString(s);
-
-        if (msg.type() == Message::MessageType::Message_MessageType_CALCULATOR) {
-            l.update_car_calculator_from_proto_message(msg.calculator());
-
-            cout << "Leasingrate: " << l.calculate_leasing_rate().value_or(0) << endl;
-            cout << "Insurcane: " << l.calculate_insurance_rate().value_or(0) << endl;
-        } else {
-            cerr << "Wrong type" << endl;
-        }
-    } else {
-        cerr << "Car Builder failed" << endl;
     }
 
     bool running = true;

@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-import "car.proto";
-
 message Message_Car_Calculator {
 
-    Message_Car car = 1;
+    string car = 1;
 
     uint32 leasing_duration = 2;
     uint32 insurance_class = 3;

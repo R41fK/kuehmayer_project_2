@@ -2,11 +2,13 @@
 ** [Unreleased]
 *** Added
 - include/server/object_storage.h
+- include/message_utility.h
 - src/messages/
 - src/messages/calculator.proto
 - src/messages/car.proto
 - src/messages/message.proto
 - src/server/object_storage.cpp
+- src/message_utility.cpp
 *** Updated
 - include/client/repl.h
 - include/car_builder.h

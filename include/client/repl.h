@@ -1,7 +1,7 @@
 #pragma once
 
 #include <peglib.h>
-
+#include <asio.hpp>
 
 #include "car.h"
 #include "car_builder.h"
@@ -14,6 +14,7 @@ private:
     bool& running;
 
     Server server_data;
+    asio::ip::tcp::iostream* strm;
 
     std::map<std::string, Car> cars{};
     std::map<std::string, Car_Builder> car_builders{};
