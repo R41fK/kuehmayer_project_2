@@ -1,9 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <string>
 #include <map>
 #include <bitset>
 #include <asio.hpp>
+#include <thread>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -483,6 +485,38 @@ void Repl::no_Car_Calculator(string s) {
 }
 
 
+void Repl::file() {
+    string input{};
+
+    fmt::print("Filepath: ");
+    getline(cin, input);
+
+    ifstream infile(input.c_str());
+
+    if (infile.good()) {
+
+        string line{};
+        while (getline(infile, line)) {
+            fmt::print("{}\n", line);
+
+            line = pystring::lower(line);
+
+            line = pystring::strip(line);
+
+            spdlog::debug(fmt::format("File input: {}", line));
+
+            this->parser.parse(line.c_str());
+
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+    } else {
+        fmt::print("File {} does not exist\n", input);
+
+        spdlog::info(fmt::format("File {} does not exist", input));
+    }
+}
+
+
 void Repl::send_message(string msg) {
 
     if (*strm) {
@@ -505,7 +539,7 @@ void Repl::send_message(string msg) {
 
         spdlog::debug(fmt::format("Client decoded message '{}'", data));
 
-        if (data != "") fmt::print("{}\n", data);
+        if (data != "ok") fmt::print("{}\n", data);
         
     } else {
 
@@ -537,7 +571,10 @@ void Repl::operator()() {
 
         spdlog::debug(fmt::format("User input: {}", input));
 
-        parser.parse(input.c_str());
-        
+        if (input == "file") {
+            file();
+        } else {
+            parser.parse(input.c_str());
+        }
     }
 }

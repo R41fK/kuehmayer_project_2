@@ -1,0 +1,12 @@
+car_builder builder
+builder ps = 60
+builder purchase_value = 16000
+car car = builder build
+car show car
+Car_calculator calc
+calc car = car
+calc deposit = 3000
+calc leasing_duration = 5
+calc rest_value = 5000
+calc show Car_calculator
+calc calculate_leasing

@@ -111,7 +111,7 @@ string Object_Storage::new_action(string data) {
                     if (ob_ins.has_value()) {
                         spdlog::debug(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value()));
 
-                        return to_string(ob_ins.value());
+                        return fmt::format("Insurance rate: {}", ob_ins.value());
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
                             , msg.name(), "Not all key components (car & insurance_class) were set!")
@@ -137,7 +137,7 @@ string Object_Storage::new_action(string data) {
                     if (ob_lea.has_value()) {
                         spdlog::debug(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value()));
 
-                        return to_string(ob_lea.value());
+                        return fmt::format("Leasing rate: {}", ob_lea.value());
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
                             , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!")
@@ -197,11 +197,11 @@ string Object_Storage::new_action(string data) {
 
             default:
                 spdlog::debug(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name()));
-                return "";
+                return "ok";
         }
     } else {
         spdlog::info(fmt::format("Message could not be Parsed to Proto objekt. Message = '{}'", data));
     }
 
-    return "";
+    return "ok";
 }
