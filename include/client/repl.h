@@ -10,8 +10,15 @@
 
 
 class Repl {
+
+#ifdef TESTS 
+public: 
+    Repl(){};
+#else
 private:
-    bool& running;
+#endif
+
+    bool running;
 
     Server server_data;
     asio::ip::tcp::iostream* strm;
@@ -21,11 +28,15 @@ private:
     std::map<std::string, Car_Calculator> car_calculators{};
 
     std::string grammar{R"(
-        START       <- HELP / CAR_BUILDER / CALCULATOR / CAR / END
+        START       <- HELP / SHOW / CAR_BUILDER / CALCULATOR / CAR / END
 
         HELP        <- 'help' / 'h'
 
         END         <- 'end' / 'stop'
+
+        SHOW        <- NAME 'show car_calculator'
+                     / NAME 'show car_builder'
+                     / NAME 'show car'
 
         CALCULATOR  <- 'car_calculator' NAME
                      / NAME 'car =' NAME
@@ -37,10 +48,8 @@ private:
                      / NAME 'is_over_24'
                      / NAME 'calculate_leasing'
                      / NAME 'calculate_insurance'
-                     / NAME 'display'
         
-        CAR         <- NAME 'show' 
-                     / NAME 'ps'
+        CAR         <- NAME 'ps'
                      / NAME 'kw'
                      / NAME 'purchase_value'
                      / NAME 'driven_kilometers'
@@ -57,7 +66,6 @@ private:
                      / NAME 'car_brand =' CAR_BRANDS
                      / NAME 'car_type =' CAR_TYPES
                      / 'car' NAME '=' NAME 'build'
-                     / NAME 'print' 
 
         FUEL_TYPES  <- 'petrol' / 'diesel' / 'natural_gas' / 'electric'
         CAR_BRANDS  <- 'vw' / 'audi' / 'mercedes' / 'bmw' / 'skoda' / 'seat'
@@ -85,6 +93,7 @@ private:
     void send_message(std::string);
 
 public:
+
     Repl(bool&, Server);
 
     // a method that starts the repl, should be started in its own thread

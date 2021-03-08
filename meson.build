@@ -1,7 +1,7 @@
 # uncomment as necessary
 project('Remote Method Invocation System', 'cpp',
         license : ['Boost'],
-        version : '0.0.4',
+        version : '0.0.5',
         default_options : ['cpp_std=c++17', 'warning_level=3', 'werror=true'])
 
 thread_dep = dependency('threads')
@@ -76,8 +76,14 @@ server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp',
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp', 
               'src/server/object_storage.cpp', 'src/message_utility.cpp']
 
-test_src = ['tests/main_tests.cpp', 'tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
-            'tests/car_calculator_test.cpp', 'src/car_calculator.cpp']
+unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
+            'unit_tests/car_calculator_test.cpp', 'src/car_calculator.cpp',
+            'src/client/repl.cpp', 'unit_tests/repl_tests.cpp', 'src/config.cpp',
+            'src/message_utility.cpp', 'src/pystring.cpp']
+
+int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_int_tests.cpp',
+                'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 'src/client/repl.cpp',
+                'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp']
 
 #protobuf: src = ['src/main.cpp', generated]
 
@@ -94,7 +100,15 @@ executable('server', proto,
           )
 
 executable('unit_tests', proto,
-           sources : test_src,
+           sources : unit_test_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep],
+           cpp_args : '-DTESTS'
+          )
+
+executable('integration_tests', proto,
+           sources : int_test_src,
+           include_directories : inc_dir,
+           dependencies : [thread_dep, protobuf_dep],
+           cpp_args : '-DTESTS'
           )

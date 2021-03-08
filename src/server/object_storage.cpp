@@ -15,11 +15,11 @@ using namespace std;
 
 string Object_Storage::new_action(string data) {
 
-    data = message_utility::from_hex(data);
+    data = message_utility::from_ascii(data);
 
     spdlog::debug(fmt::format("Client Message decoded to '{}'", data));    
 
-    cout << data << endl;
+    //cout << data << endl;
 
     Message msg{};
 
@@ -117,6 +117,8 @@ string Object_Storage::new_action(string data) {
                             , msg.name(), "Not all key components (car & insurance_class) were set!")
                         );
 
+                        spdlog::debug(this->car_calculators.at(msg.name()).to_string());
+
                         return fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
                             , msg.name(), "Not all key components (car & insurance_class) were set!");
                     }
@@ -140,6 +142,8 @@ string Object_Storage::new_action(string data) {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
                             , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!")
                         );
+
+                        spdlog::debug(this->car_calculators.at(msg.name()).to_string());
 
                         return fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
                             , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!");
@@ -175,6 +179,7 @@ string Object_Storage::new_action(string data) {
                     
                     Car_Calculator calc{};
                     calc.update_car_calculator_from_proto_message(msg.calculator());
+
                     this->car_calculators.insert_or_assign(msg.name(), calc);
 
                     if (msg.calculator().car() != "") {

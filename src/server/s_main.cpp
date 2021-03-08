@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
+    cout << "Started" << endl;
+
     logger_settings.config_logger();
 
     if (config_file_json != "") {
@@ -90,7 +92,7 @@ int main(int argc, char* argv[]) {
     ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
     ip::tcp::acceptor acceptor{ctx, ep};
 
-    Object_Storage obst{};
+    
 
     spdlog::info("Started Server!");
 
@@ -102,7 +104,9 @@ int main(int argc, char* argv[]) {
 
             spdlog::info("Client connected to Server");
 
-            while (strm) {            
+            Object_Storage obst{};
+
+            while (strm) {           
 
                 string data{};
 
@@ -111,7 +115,7 @@ int main(int argc, char* argv[]) {
                 if (strm) {
                     spdlog::debug(fmt::format("server got message {}", data));
 
-                    strm << message_utility::to_hex(obst.new_action(data)) << endl;;
+                    strm << message_utility::to_ascii(obst.new_action(data));
                 }
             }
 

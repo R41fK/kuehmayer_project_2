@@ -2,6 +2,6 @@
 
 namespace message_utility {
 
-    std::string to_hex(std::string);
-    std::string from_hex(std::string);
+    std::string to_ascii(std::string);
+    std::string from_ascii(std::string);
 }

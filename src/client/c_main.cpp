@@ -93,10 +93,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    spdlog::info(fmt::format("Started Client"));
+
     bool running = true;
-    std::thread tr{Repl(ref(running), server_data)};
+    std::thread tr{Repl(running, server_data)};
 
     tr.join();
 
     google::protobuf::ShutdownProtobufLibrary();
+
+    spdlog::info(fmt::format("Client stoped"));
 }
