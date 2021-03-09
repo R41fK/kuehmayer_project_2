@@ -76,10 +76,11 @@ server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp',
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp', 
               'src/server/object_storage.cpp', 'src/message_utility.cpp']
 
-unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/car.cpp', 'src/car_builder.cpp',
-            'unit_tests/car_calculator_test.cpp', 'src/car_calculator.cpp',
-            'src/client/repl.cpp', 'unit_tests/repl_tests.cpp', 'src/config.cpp',
-            'src/message_utility.cpp', 'src/pystring.cpp']
+unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/car.cpp', 
+                 'src/car_builder.cpp', 'unit_tests/car_calculator_test.cpp', 
+                 'src/car_calculator.cpp', 'src/client/repl.cpp', 'unit_tests/repl_tests.cpp', 
+                 'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp', 
+                 'unit_tests/message_utility_test.cpp']
 
 int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_int_tests.cpp',
                 'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 'src/client/repl.cpp',

@@ -8,6 +8,7 @@
 - unit_tests/test_car.cpp
 - unit_tests/car_calculator_test.cpp
 - unit_tests/main_tests.cpp
+- unit_tests/message_utility_test.cpp
 - unit_tests/repl_tests.cpp
 *** Updated
 - include/client/repl.h

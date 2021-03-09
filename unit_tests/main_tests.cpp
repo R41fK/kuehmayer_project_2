@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 
     cout << rang::fg::green
          << rang::style::bold  << "Started " 
-         << rang::fg::yellow   << " Unit Tests " 
+         << rang::fg::yellow   << "Unit Tests " 
          << rang::fg::green    << "for the "
          << rang::fg::yellow   << "client "
          << rang::fg::green    << "and the " 
