@@ -9,7 +9,7 @@ using namespace peg;
 
 TEST_CASE("Repl gramar") {
 
-    Repl repl{};
+    Repl repl{false};
 
     auto ok = repl.parser.load_grammar(repl.grammar);
 
@@ -19,7 +19,7 @@ TEST_CASE("Repl gramar") {
 
 TEST_CASE("Repl parse") {
 
-    Repl repl{};
+    Repl repl{false};
 
     auto ok = repl.parser.load_grammar(repl.grammar);
 
@@ -74,7 +74,7 @@ TEST_CASE("Repl parse") {
 
 TEST_CASE("Repl parse failed") {
 
-    Repl repl{};
+    Repl repl{false};
 
     auto ok = repl.parser.load_grammar(repl.grammar);
 

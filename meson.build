@@ -70,7 +70,8 @@ inc_dir = include_directories('include')
 
 client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp',
-              'src/client/repl.cpp', 'src/message_utility.cpp']
+              'src/client/repl_constructor.cpp', 'src/client/repl_functions.cpp',
+              'src/message_utility.cpp']
 
 server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp', 
@@ -78,12 +79,14 @@ server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp',
 
 unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/car.cpp', 
                  'src/car_builder.cpp', 'unit_tests/car_calculator_test.cpp', 
-                 'src/car_calculator.cpp', 'src/client/repl.cpp', 'unit_tests/repl_tests.cpp', 
+                 'src/car_calculator.cpp', 'src/client/repl_constructor.cpp', 
+                 'src/client/repl_functions.cpp', 'unit_tests/repl_tests.cpp', 
                  'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp', 
                  'unit_tests/message_utility_test.cpp']
 
 int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_int_tests.cpp',
-                'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 'src/client/repl.cpp',
+                'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 
+                'src/client/repl_constructor.cpp', 'src/client/repl_functions.cpp',
                 'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp']
 
 #protobuf: src = ['src/main.cpp', generated]

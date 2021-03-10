@@ -7,8 +7,7 @@
 using namespace std;
 
 
-string message_utility::to_ascii(string data)
-{
+string message_utility::to_ascii(string data) {
     stringstream sstream;
 
     for(char ch : data) {

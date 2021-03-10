@@ -97,32 +97,43 @@ int main(int argc, char* argv[]) {
     spdlog::info("Started Server!");
 
     try {
+
+        acceptor.listen();
+
         while (1) {
-            acceptor.listen();
+            
+            ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
+
+            std::thread t{[&]() {
                 
-            ip::tcp::iostream strm{acceptor.accept()};
+                spdlog::info("Client connected to Server");
 
-            spdlog::info("Client connected to Server");
+                Object_Storage obst{};
 
-            Object_Storage obst{};
+                while (*strm) {           
 
-            while (strm) {           
+                    string data{};
 
-                string data{};
+                    getline(*strm, data);
 
-                getline(strm, data);
+                    if (*strm) {
+                        spdlog::debug(fmt::format("server got message {}", data));
 
-                if (strm) {
-                    spdlog::debug(fmt::format("server got message {}", data));
-
-                    strm << message_utility::to_ascii(obst.new_action(data));
+                        *strm << message_utility::to_ascii(obst.new_action(data));
+                    }
                 }
-            }
 
-            strm.close();
+                strm->close();
 
-            spdlog::info("Client disconnected");
+                delete strm;
+
+                spdlog::info("Client disconnected");
+            }};
+
+            t.detach();
         }
+
+
     } catch (asio::system_error& e) {
         spdlog::error(e.what()); 
     }

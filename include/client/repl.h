@@ -13,12 +13,13 @@ class Repl {
 
 #ifdef TESTS 
 public: 
-    Repl(){};
+    Repl(bool running): running{running} {};
 #else
 private:
 #endif
 
-    bool running;
+    bool& running;
+    std::vector<std::string> messages{};
 
     Server server_data;
     asio::ip::tcp::iostream* strm;
@@ -32,7 +33,7 @@ private:
 
         HELP        <- 'help' / 'h'
 
-        END         <- 'end' / 'stop'
+        END         <- 'end' / 'stop' / 'exit'
 
         SHOW        <- NAME 'show car_calculator'
                      / NAME 'show car_builder'
@@ -96,7 +97,7 @@ private:
 
 public:
 
-    Repl(bool&, Server);
+    Repl(bool, Server);
 
     // a method that starts the repl, should be started in its own thread
     void operator()();

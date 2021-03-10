@@ -28,7 +28,7 @@ using namespace peg;
 
 
 
-Repl::Repl(bool& running, Server server_data):
+Repl::Repl(bool running, Server server_data):
     running{running},
     server_data{server_data}
     {
@@ -51,6 +51,7 @@ Repl::Repl(bool& running, Server server_data):
 
     parser["END"] = [this](const SemanticValues) {
         this->stop();
+        fmt::print("Stoped\n");
     };
 
     parser["SHOW"] = [&](const SemanticValues &vs) {
@@ -421,160 +422,4 @@ Repl::Repl(bool& running, Server server_data):
         return vs.token_to_number<double>();
     };
 
-}
-
-void Repl::show_help() {
-    fmt::print(
-    R"(Commands:
-    help | h                                        shows this help message
-    end | stop                                      stops the programm
-
-    car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
-    <calculator_name> show car_calculator           shows the car_calculator object for the object with the name <calculator_name>
-    <calculator_name> car = <car_name>              sets the car for the car_calculator with the name <calculator_name>
-    <calculator_name> leasing_duration = <int>      sets the leasing_duration for the car_calculator with the name <calculator_name> 
-    <calculator_name> insurance_class = <int>       sets the insurance_class for the car_calculator with the name <calculator_name>
-    <calculator_name> rest_value = <double>         sets the rest_value for the car_calculator with the name <calculator_name>
-    <calculator_name> deposit = <double>            sets the deposite for the car_calculator with the name <calculator_name>
-    <calculator_name> is_under_24                   sets that the person is under 24 for the car_calculator with the name <calculator_name>
-    <calculator_name> is_over_24                    sets that the person is over 24 for the car_calculator with the name <calculator_name>
-    <calculator_name> calculate_leasing             calculates the leasint rate. Needs: car, leasing_duration, rest_value, deposit
-    <calculator_name> calculate_insurance           calculates the insurance rate. Needs: car, insurance_class, is_under_24 or is_over_24
-
-    car_builder <builder_name>                      creates a car_builder with the name <builder_name>
-    <builder_name> show car_builder                 shows the car_builder object for the object with the name <builder_name>
-    <builder_name> ps = <int>                       sets the ps for the car_builder with the name <builder_name>
-    <builder_name> purchase_value = <double>        sets the purchase_value for the car_builder with the name <builder_name>
-    <builder_name> driven_kilometer = <int>         sets the driven_kilometer for the car_builder with the name <builder_name>
-    <builder_name> fuel_type = <fuel_types>         sets the fuel_type for the car_builder with the name <builder_name>
-    <builder_name> car_brand = <car_brands>         sets the car_brand for the car_builder with the name <builder_name>
-    <builder_name> car_type = <car_type>            sets the car_type for the car_builder with the name <builder_name>
-
-    car <car_name> = <builder_name> build           creates a car with the name <car_name> from a car_builder with the name <builder_name>
-    <car_name> show car                             shows the car object for the object with the name <car_name>
-    <car_name> ps                                   shows the ps for the object with the name <car_name>
-    <car_name> kw                                   shows the kw for the object with the name <car_name>
-    <car_name> purchase_value                       shows the purchase_value for the object with the name <car_name>
-    <car_name> driven_kilometers                    shows the driven_kilometers for the object with the name <car_name>
-    <car_name> car_type                             shows the car_type for the object with the name <car_name>
-    <car_name> brand                                shows the brand for the object with the name <car_name>
-    <car_name> fuel_type                            shows the fuel_type for the object with the name <car_name>
-
-    <fuel_types> = petrol | diesel | natural_gas | electric
-    <car_brands> = vw | audi | mercedes | bmw | skoda | seat
-    <car_type>   = sedan | coupe | sports_car | hatchback | suv | minivan | pickup_truck
-
-)"
-    );
-}
-
-
-void Repl::no_Car_Builder(string s) {
-    spdlog::debug(fmt::format("No Car_Builder with this name: {}", s));
-    fmt::print("No Car_Builder with this name: {}\n", s);
-}
-
-void Repl::no_Car(string s) {
-    spdlog::debug(fmt::format("No Car with this name: {}", s));
-    fmt::print("No Car with this name: {}\n", s);
-}
-
-void Repl::no_Car_Calculator(string s) {
-    spdlog::debug(fmt::format("No Car_Calculator with this name: {}", s));
-    fmt::print("No Car_Calculator with this name: {}\n", s);
-}
-
-
-void Repl::file() {
-    string input{};
-
-    fmt::print("Filepath: ");
-    getline(cin, input);
-
-    ifstream infile(input.c_str());
-
-    if (infile.good()) {
-
-        string line{};
-        while (getline(infile, line)) {
-            fmt::print("{}\n", line);
-
-            line = pystring::lower(line);
-
-            line = pystring::strip(line);
-
-            spdlog::debug(fmt::format("File input: {}", line));
-
-            this->parser.parse(line.c_str());
-
-            this_thread::sleep_for(chrono::seconds(1));
-        }
-    } else {
-        fmt::print("File {} does not exist\n", input);
-
-        spdlog::info(fmt::format("File {} does not exist", input));
-    }
-}
-
-
-void Repl::send_message(string msg) {
-
-    if (*strm) {
-    
-        spdlog::debug(fmt::format("Client encodes message '{}'", msg));
-
-        string dec_msg{message_utility::to_ascii(msg)};
-
-        spdlog::debug(fmt::format("Client sends encoded message '{}'", dec_msg));
-
-        *strm << dec_msg;
-
-        string data;
-
-        getline(*strm, data);
-
-        spdlog::debug(fmt::format("Client got message '{}'", data));
-
-        data = message_utility::from_ascii(data);
-
-        spdlog::debug(fmt::format("Client decoded message '{}'", data));
-
-        if (data != "ok") fmt::print("{}\n", data);
-        
-    } else {
-
-        spdlog::info(fmt::format("Create a connection on ip: {} with port: {}", server_data.ip, server_data.port));
-        this->strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
-        this->send_message(msg);
-    }
-}
-
-
-void Repl::stop() {
-    this->running = false;
-    strm->close();
-    fmt::print("Stoped\n");
-    spdlog::info(fmt::format("User send stop signal"));
-}
-
-void Repl::operator()() {
-
-    string input{};
-
-    while (this->running) {
-        
-        getline(cin, input);
-
-        input = pystring::lower(input);
-
-        input = pystring::strip(input);
-
-        spdlog::debug(fmt::format("User input: {}", input));
-
-        if (input == "file") {
-            file();
-        } else {
-            parser.parse(input.c_str());
-        }
-    }
 }

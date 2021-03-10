@@ -28,7 +28,7 @@ string send_message(string msg, Repl repl) {
 
 TEST_CASE("Repl send message sync Builder") {
 
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -43,7 +43,7 @@ TEST_CASE("Repl send message sync Builder") {
 
 
 TEST_CASE("Repl send message build Car") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -69,7 +69,7 @@ TEST_CASE("Repl send message build Car") {
 
 
 TEST_CASE("Repl send message sync Car_Calculator") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -87,7 +87,7 @@ TEST_CASE("Repl send message sync Car_Calculator") {
 
 
 TEST_CASE("Repl send message calculate insurance") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -137,7 +137,7 @@ TEST_CASE("Repl send message calculate insurance") {
 
 
 TEST_CASE("Repl send message calculate leasing") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -189,7 +189,7 @@ TEST_CASE("Repl send message calculate leasing") {
 
 
 TEST_CASE("Repl send message calculate leasing calculator not found") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -208,7 +208,7 @@ TEST_CASE("Repl send message calculate leasing calculator not found") {
 
 
 TEST_CASE("Repl send message calculate insurance failed") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -237,7 +237,7 @@ TEST_CASE("Repl send message calculate insurance failed") {
 
 
 TEST_CASE("Repl send message calculate leasing failed") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -262,7 +262,7 @@ TEST_CASE("Repl send message calculate leasing failed") {
 
 
 TEST_CASE("Repl send message build Car no Builder") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -282,7 +282,7 @@ TEST_CASE("Repl send message build Car no Builder") {
 
 
 TEST_CASE("Repl send message build Car. Builder failed") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
@@ -308,7 +308,7 @@ TEST_CASE("Repl send message build Car. Builder failed") {
 
 
 TEST_CASE("Repl sync calculator, no car found") {
-    Repl repl{};
+    Repl repl{false};
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
