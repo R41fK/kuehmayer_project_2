@@ -1,11 +1,10 @@
 #include <iostream>
 #include <thread>
-
 #include <asio.hpp>
+
 #include <CLI11.hpp>
 #include <fmt/core.h>
 #include <json.hpp>
-#include "pystring.h"
 #include <rang.hpp>
 #include <spdlog/spdlog.h>
 #include <toml.hpp>
@@ -66,7 +65,6 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
-    cout << "Started" << endl;
 
     logger_settings.config_logger();
 
@@ -92,7 +90,16 @@ int main(int argc, char* argv[]) {
     ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
     ip::tcp::acceptor acceptor{ctx, ep};
 
-    
+    cout << endl;
+
+    cout << rang::fg::green
+         << rang::style::bold  << "Started Server on port: "
+         << rang::fg::yellow   << server_data.port 
+         << endl
+        ;
+
+    logger_settings.print_logger_config();
+
 
     spdlog::info("Started Server!");
 

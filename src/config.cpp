@@ -3,6 +3,7 @@
 #include <optional>
 
 #include <json.hpp>
+#include <rang.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <toml.hpp>
@@ -74,6 +75,38 @@ void Log_Settings::config_logger() {
 
     spdlog::set_default_logger(file_logger);
 }
+
+
+void Log_Settings::print_logger_config() {
+    if (this->log_to_file) {
+        cout << endl;
+        cout << rang::style::bold << rang::fg::yellow
+             << "Logging activated" << rang::fg::green
+             << " with the " << rang::fg::yellow
+             << " logging-level ";
+        if (this->log_level_debug) {
+            cout << "debug";
+        } else {
+            cout << "info";
+        }
+        cout << rang::fg::green << ". The logger writes in the file "
+             << rang::fg::yellow << this->log_file;
+
+        cout << rang::style::reset 
+         << rang::fg::reset << endl;
+    }
+    cout << endl;
+
+
+    for (int i=0; i < 79; i++) {
+        cout << "-";
+    }
+
+    cout << rang::style::reset 
+         << rang::fg::reset 
+         << endl;
+}
+
 
 
 string Server::get_port_as_string() {

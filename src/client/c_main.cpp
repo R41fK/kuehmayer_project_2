@@ -3,11 +3,9 @@
 #include <thread>
 #include <optional>
 
-#include <asio.hpp>
 #include <CLI11.hpp>
 #include <fmt/core.h>
 #include <json.hpp>
-#include "pystring.h"
 #include <rang.hpp>
 #include <spdlog/spdlog.h>
 #include <toml.hpp>
@@ -95,8 +93,20 @@ int main(int argc, char* argv[]) {
 
     spdlog::info(fmt::format("Started Client"));
 
-    bool running = true;
-    std::thread tr{Repl(running, server_data)};
+    cout << endl;
+
+    cout << rang::fg::green
+         << rang::style::bold  << "Started Client! Server ip: " 
+         << rang::fg::yellow   << server_data.ip
+         << rang::fg::green    << " port: "
+         << rang::fg::yellow   << server_data.port 
+         << endl
+        ;
+
+    logger_settings.print_logger_config();
+
+
+    std::thread tr{Repl(true, server_data)};
 
     tr.join();
 

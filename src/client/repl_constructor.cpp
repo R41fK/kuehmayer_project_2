@@ -51,14 +51,14 @@ Repl::Repl(bool running, Server server_data):
 
     parser["END"] = [this](const SemanticValues) {
         this->stop();
-        fmt::print("Stoped\n");
+        fmt::print(fg(fmt::color::orange), "Stoped\n");
     };
 
     parser["SHOW"] = [&](const SemanticValues &vs) {
         switch (vs.choice()) {
             case 0: // NAME show car_calculator
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    fmt::print("{}\n", car_calculators.at(any_cast<string>(vs[0])).to_string());
+                    fmt::print(fg(fmt::color::alice_blue), "{}\n", car_calculators.at(any_cast<string>(vs[0])).to_string());
                 } else {
                     no_Car_Calculator(any_cast<string>(vs[0]));
                 }
@@ -66,7 +66,7 @@ Repl::Repl(bool running, Server server_data):
 
             case 1: // NAME show car_builder
                 if (car_builders.find(any_cast<string>(vs[0])) != car_builders.end()) {
-                    fmt::print("{}\n", car_builders.at(any_cast<string>(vs[0])).to_string());
+                    fmt::print(fg(fmt::color::alice_blue), "{}\n", car_builders.at(any_cast<string>(vs[0])).to_string());
                 } else {
                     no_Car_Builder(any_cast<string>(vs[0]));
                 }
@@ -74,7 +74,7 @@ Repl::Repl(bool running, Server server_data):
 
             case 2: // NAME show car
                 if (cars.find(any_cast<string>(vs[0])) != cars.end()) {
-                    fmt::print("{}\n", cars.at(any_cast<string>(vs[0])).to_string());
+                    fmt::print(fg(fmt::color::alice_blue), "{}\n", cars.at(any_cast<string>(vs[0])).to_string());
                 } else {
                     no_Car(any_cast<string>(vs[0]));
                 }

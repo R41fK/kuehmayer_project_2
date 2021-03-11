@@ -75,17 +75,17 @@ void Repl::show_help() {
 
 void Repl::no_Car_Builder(string s) {
     spdlog::debug(fmt::format("No Car_Builder with this name: {}", s));
-    fmt::print("No Car_Builder with this name: {}\n", s);
+    fmt::print(fg(fmt::color::orange), "No Car_Builder with this name: {}\n", s);
 }
 
 void Repl::no_Car(string s) {
     spdlog::debug(fmt::format("No Car with this name: {}", s));
-    fmt::print("No Car with this name: {}\n", s);
+    fmt::print(fg(fmt::color::orange), "No Car with this name: {}\n", s);
 }
 
 void Repl::no_Car_Calculator(string s) {
     spdlog::debug(fmt::format("No Car_Calculator with this name: {}", s));
-    fmt::print("No Car_Calculator with this name: {}\n", s);
+    fmt::print(fg(fmt::color::orange), "No Car_Calculator with this name: {}\n", s);
 }
 
 
@@ -100,7 +100,7 @@ void Repl::file() {
     if (infile.good()) {
 
         string line{};
-        while (getline(infile, line)) {
+        while (getline(infile, line) && this->running) {
             fmt::print("{}\n", line);
 
             line = pystring::lower(line);
@@ -146,13 +146,13 @@ void Repl::send_message(string msg) {
         spdlog::debug(fmt::format("Client decoded message '{}'", data));
 
         if (data != "ok" || data == "") {
-            fmt::print("{}\n", data);
+            fmt::print(fg(fmt::color::alice_blue), "{}\n", data);
         }
         
     } else {
 
         spdlog::info(fmt::format("Connection to the server with ip: {} and port: {} closed.", server_data.ip, server_data.port));
-        fmt::print("Connection to the server closed. Reastablish connection? (y,n): ");
+        fmt::print(fg(fmt::color::orange), "Connection to the server closed. Reastablish connection? (y,n): ");
 
         string input{};
 
@@ -167,7 +167,7 @@ void Repl::send_message(string msg) {
             this->strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
             if (*this->strm) {
-                fmt::print("Connection reastablished! Updating Server...\n");
+                fmt::print(fg(fmt::color::orange), "Connection reastablished! Updating Server...\n");
             
                 for (string st : messages) {
                     if (*this->strm) {
@@ -180,25 +180,25 @@ void Repl::send_message(string msg) {
                                         , server_data.ip
                                         , server_data.port)
                                     );
-                        fmt::print("Reconnection failed! Stopping client.\n");
+                        fmt::print(fg(fmt::color::red), "Reconnecting failed! Stopping client!\n");
                         this->stop();
 
                         break;
                     }
                 }
 
-                fmt::print("Server updated\n");
+                fmt::print(fg(fmt::color::red), "Server updated\n");
 
             } else {
                 spdlog::info(fmt::format("Connecting to the server with ip: {} and port: {} failed"
                                         , server_data.ip
                                         , server_data.port)
                             );
-                fmt::print("Reconnection failed! Stopping client.\n");
+                fmt::print(fg(fmt::color::red), "Reconnection failed! Stopping client!\n");
                 this->stop();
             }
         } else {
-            fmt::print("No connection to server. Client stopped\n");
+            fmt::print(fg(fmt::color::red), "No connection to server. Stopping client!\n");
             this->stop();
         }   
     }

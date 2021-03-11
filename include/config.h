@@ -24,4 +24,5 @@ struct Log_Settings {
     bool log_level_debug{false};
 
     void config_logger();
+    void print_logger_config();
 };
