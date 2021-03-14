@@ -43,8 +43,6 @@ add_global_arguments('-I' + get_option('rang_include_dir'), language : 'cpp')
 # toml++: https://github.com/marzer/tomlplusplus/
 add_global_arguments('-I' + get_option('toml_include_dir'), language : 'cpp')
 
-# sqlite_orm: https://github.com/fnc12/sqlite_orm
-add_global_arguments('-I' + get_option('sqlite_orm_include_dir'), language : 'cpp')
 
 
 # # begin protobuf: https://developers.google.com/protocol-buffers/

@@ -85,25 +85,24 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
     }
+     try {
 
-    asio::io_context ctx;
-    ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
-    ip::tcp::acceptor acceptor{ctx, ep};
+        asio::io_context ctx;
+        ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
+        ip::tcp::acceptor acceptor{ctx, ep};
 
-    cout << endl;
+        cout << endl;
 
-    cout << rang::fg::green
-         << rang::style::bold  << "Started Server on port: "
-         << rang::fg::yellow   << server_data.port 
-         << endl
-        ;
+        cout << rang::fg::green
+            << rang::style::bold  << "Started Server on port: "
+            << rang::fg::yellow   << server_data.port 
+            << endl
+            ;
 
-    logger_settings.print_logger_config();
+        logger_settings.print_logger_config();
 
 
-    spdlog::info("Started Server!");
-
-    try {
+        spdlog::info("Started Server!");
 
         acceptor.listen();
 
@@ -142,8 +141,9 @@ int main(int argc, char* argv[]) {
 
 
     } catch (asio::system_error& e) {
-        spdlog::error(e.what()); 
-    }
+        spdlog::error(e.what());
+        fmt::print("Exception: {} occured! Server Stopped\n", e.what()); 
+    } 
 
     google::protobuf::ShutdownProtobufLibrary();
 }

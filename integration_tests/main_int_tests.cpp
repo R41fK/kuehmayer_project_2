@@ -5,6 +5,9 @@
 #include <thread>
 #include <sys/wait.h>
 #include <rang.hpp>
+#include <asio.hpp>
+
+#include "client/repl.h"
 
 using namespace std;
 
@@ -48,6 +51,15 @@ int main(int argc, char* argv[]) {
         execl("./server", "server", nullptr);
     } else {
         this_thread::sleep_for(chrono::seconds(1));
+        Repl repl{false};
+        Server server_data{};
+        repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
+        if (!*repl.strm) {
+            cerr << "No Connection to the Server possible!" << endl;
+            repl.strm->close();
+            exit(1);
+        }
+        repl.strm->close();
     }
 
     int res = context.run(); // run
