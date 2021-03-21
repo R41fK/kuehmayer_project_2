@@ -1,9 +1,16 @@
 * Changelog
 ** [Unreleased]
+*** Updated
+- src/client/repl_construcor.cpp
+- src/unit_tests/repl_tests.cpp
+
+** [0.0.6] - 2021-03-15
 *** Added
 - integration_tests/
 - integration_tests/main_int_tests.cpp
 - integration_tests/repl_int_tests.cpp
+- src/client/repl_construcor.cpp
+- src/client/repl_functions.cpp
 - unit_tests/
 - unit_tests/test_car.cpp
 - unit_tests/car_calculator_test.cpp
@@ -14,11 +21,11 @@
 - include/client/repl.h
 - include/message_utility.h
 - src/client/c_main.cpp
-- src/client/repl.cpp
 - src/server/object_storage.cpp
 - src/server/s_main.cpp
 - src/message_utility.cpp
 *** Deleted
+- src/client/repl.cpp
 - tests/
 - tests/test_car.cpp
 - tests/car_calculator_test.cpp

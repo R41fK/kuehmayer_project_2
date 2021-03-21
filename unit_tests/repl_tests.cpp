@@ -11,7 +11,7 @@ TEST_CASE("Repl gramar") {
 
     Repl repl{false};
 
-    auto ok = repl.parser.load_grammar(repl.grammar);
+    auto ok = repl.parser.load_grammar(repl.grammar.c_str());
 
     CHECK(ok);
 }
@@ -21,7 +21,7 @@ TEST_CASE("Repl parse") {
 
     Repl repl{false};
 
-    auto ok = repl.parser.load_grammar(repl.grammar);
+    auto ok = repl.parser.load_grammar(repl.grammar.c_str());
 
     REQUIRE(ok);
     CHECK(repl.parser.parse("car_builder test"));
@@ -76,7 +76,7 @@ TEST_CASE("Repl parse failed") {
 
     Repl repl{false};
 
-    auto ok = repl.parser.load_grammar(repl.grammar);
+    auto ok = repl.parser.load_grammar(repl.grammar.c_str());
 
     REQUIRE(ok);
     CHECK_FALSE(repl.parser.parse("car_builder test dsd"));

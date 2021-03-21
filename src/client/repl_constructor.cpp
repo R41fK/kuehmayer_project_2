@@ -42,7 +42,7 @@ Repl::Repl(bool running, Server server_data):
         spdlog::debug(fmt::format("{}:{}: {}", line, col, msg));
     };
 
-    parser.load_grammar(grammar);
+    parser.load_grammar(grammar.c_str());
 
     parser["HELP"] = [this](const SemanticValues) {
         this->show_help();
