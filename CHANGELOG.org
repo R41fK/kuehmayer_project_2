@@ -1,6 +1,7 @@
 * Changelog
 ** [Unreleased]
 *** Updated
+- enable to configure the programs by config files
 - include/config.h
 - src/client/repl_construcor.cpp
 - src/config.cpp
@@ -8,6 +9,8 @@
 
 ** [0.0.6] - 2021-03-15
 *** Added
+- create integration_tests
+- rename tests to unit_tests
 - integration_tests/
 - integration_tests/main_int_tests.cpp
 - integration_tests/repl_int_tests.cpp
@@ -20,6 +23,8 @@
 - unit_tests/message_utility_test.cpp
 - unit_tests/repl_tests.cpp
 *** Updated
+- update the outputs to have colors
+- change from hex to ascii value for comunication
 - include/client/repl.h
 - include/message_utility.h
 - src/client/c_main.cpp
@@ -27,6 +32,7 @@
 - src/server/s_main.cpp
 - src/message_utility.cpp
 *** Deleted
+- renaming tests
 - src/client/repl.cpp
 - tests/
 - tests/test_car.cpp
@@ -36,6 +42,9 @@
 
 ** [0.0.5] - 2021-03-08
 *** Added
+- create proto messages
+- create the object storage for the server
+- create message_utility for the comunication
 - include/server/object_storage.h
 - include/message_utility.h
 - src/messages/
@@ -45,6 +54,8 @@
 - src/server/object_storage.cpp
 - src/message_utility.cpp
 *** Updated
+- create file input suport for the repl
+- create unit tests for repl
 - include/client/repl.h
 - include/car_builder.h
 - include/car.h
@@ -58,6 +69,7 @@
 
 ** [0.0.4] - 2021-03-01
 *** Updated
+- Create the grammar for the client
 - include/client/repl.h
 - src/client/repl.cpp
 
@@ -66,12 +78,17 @@
 *** Added
 - tests/repl_tests.cpp
 *** Updated
+- update repl for this projekt
 - include/client/repl.h
 - src/client/repl.cpp
 
 
 ** [0.0.2] - 2021-02-16
 *** Added
+- Create the shared objects
+- Create tests for the methods of the objects
+- Create basic configuration
+- Create basic project sturcure
 - include/client/
 - include/client/repl.h
 - include/server/
