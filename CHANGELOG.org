@@ -1,8 +1,10 @@
 * Changelog
 ** [Unreleased]
 *** Updated
+- include/config.h
 - src/client/repl_construcor.cpp
-- src/unit_tests/repl_tests.cpp
+- src/config.cpp
+- unit_tests/repl_tests.cpp
 
 ** [0.0.6] - 2021-03-15
 *** Added

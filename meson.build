@@ -92,25 +92,27 @@ int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_
 executable('client', proto,
            sources : client_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep],
+           cpp_args : '-Wno-psabi'
           )
 
 executable('server', proto,
            sources : server_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep]
+           dependencies : [thread_dep, protobuf_dep],
+           cpp_args : '-Wno-psabi'
           )
 
 executable('unit_tests', proto,
            sources : unit_test_src,
            include_directories : inc_dir,
            dependencies : [thread_dep, protobuf_dep],
-           cpp_args : '-DTESTS'
+           cpp_args : ['-DTESTS', '-Wno-psabi']
           )
 
 executable('integration_tests', proto,
            sources : int_test_src,
            include_directories : inc_dir,
            dependencies : [thread_dep, protobuf_dep],
-           cpp_args : '-DTESTS'
+           cpp_args : ['-DTESTS', '-Wno-psabi']
           )

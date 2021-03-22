@@ -1,0 +1,6 @@
+{
+    "port": 5786,
+    "server-ip": "localhost",
+    "log-to-file": true,
+    "log-level-debug": true
+}

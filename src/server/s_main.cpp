@@ -66,13 +66,13 @@ int main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
 
-    logger_settings.config_logger();
-
     if (config_file_json != "") {
         optional<nlohmann::json> o_json{validate_json(config_file_json)};
 
         if (o_json.has_value()) {
-            nlohmann::json json = o_json.value();
+            if (!config_from_json(o_json.value(), ref(server_data), ref(logger_settings))) {
+                exit(1);
+            }
         } else {
             exit(1);
         }
@@ -80,12 +80,17 @@ int main(int argc, char* argv[]) {
         optional<toml::table> o_toml{validate_toml(config_file_toml)};
 
         if (o_toml.has_value()) {
-            toml::table toml = o_toml.value();
+            if (!config_from_toml(o_toml.value(), ref(server_data), ref(logger_settings))) {
+                exit(1);
+            }
         } else {
             exit(1);
         }
     }
-     try {
+
+    logger_settings.config_logger();
+
+    try {
 
         asio::io_context ctx;
         ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};

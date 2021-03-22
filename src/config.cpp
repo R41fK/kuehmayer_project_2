@@ -28,7 +28,6 @@ optional<json> validate_json(string file_name) {
         string error_message{err.what()};
 
         cerr << "Not Valid JSON: " + error_message << endl;
-        spdlog::error("Not Valid JSON: " + error_message);
 
         return nullopt;
     }
@@ -47,33 +46,154 @@ optional<toml::table> validate_toml(string file_name) {
         string error_message{err.what()};
 
         cerr << "Not Valid TOML: " + error_message << endl;
-        spdlog::error("Not Valid TOML: " + error_message);
 
         return nullopt;
     }
 }
 
-void Log_Settings::config_logger() {
 
-    //Create rotating file multi-threaded logger
-    auto file_logger = spdlog::rotating_logger_mt("file_logger", this->log_file, 1048576 * 10, 3);
-    
-    file_logger->set_pattern("[%H:%M:%S] [thread %t] [%^%l%$] %v");
+bool config_from_json(nlohmann::json json, Server& server_data, Log_Settings& log_settings) {
 
-    if (this->log_to_file) {
-        if (this->log_level_debug) {
-            file_logger->set_level(spdlog::level::debug);
-            file_logger->flush_on(spdlog::level::debug);
+    if (json.contains("port")) {
+        if (json["port"].is_number_integer() && json["port"].is_number_unsigned()) {
+            server_data.port = json["port"];
         } else {
-            file_logger->set_level(spdlog::level::info);
-            file_logger->flush_on(spdlog::level::info);
+            cerr << "Port has to be a unsinged short integer" << endl;
+            return false;
         }
-    } else {
-        file_logger->set_level(spdlog::level::off);
-        file_logger->flush_on(spdlog::level::off);
     }
 
-    spdlog::set_default_logger(file_logger);
+    if (json.contains("server-ip")) {
+        if (json["server-ip"].is_string() && json["server-ip"] != "") {
+            server_data.ip = json["server-ip"];
+        } else {
+            cerr << "server-ip has to be a string that is not empty" << endl;
+            return false;
+        }
+    }
+
+    if (json.contains("log-to-file")) {
+        if (json["log-to-file"].is_boolean()) {
+            log_settings.log_to_file = json["log-to-file"];
+        } else {
+            cerr << "log-to-file has to be a boolean" << endl;
+            return false;
+        }
+    }
+
+    if (json.contains("log-level-debug") && log_settings.log_to_file) {
+        if (json["log-level-debug"].is_boolean()) {
+            log_settings.log_level_debug = json["log-level-debug"];
+        } else {
+            cerr << "log-level-debug has to be a boolean" << endl;
+            return false;
+        }
+    } else if(json.contains("log-level-debug")) {
+        cerr << "log-level-debug cant be set without setting log-to-file true" << endl;
+        return false;
+    }
+
+    if (json.contains("log-file") && log_settings.log_to_file) {
+        if (json["log-file"].is_string() && json["log-file"] != "") {
+            log_settings.log_file = json["log-file"];
+        } else {
+            cerr << "log-file has to be a string that is not empty" << endl;
+            return false;
+        }
+    } else if(json.contains("log-file")) {
+        cerr << "log-file cant be set without setting log-to-file true" << endl;
+        return false;
+    }
+    return true;
+}
+
+
+bool config_from_toml(toml::table toml, Server& server_data, Log_Settings& log_settings) {
+
+    if (toml["Server"]["port"]) {
+        if (toml["Server"]["port"].value<short unsigned int>().has_value()) {
+            server_data.port = toml["Server"]["port"].value<short unsigned int>().value();
+        } else {
+            cerr << "Port has to be a unsinged short integer" << endl;
+            return false;
+        }
+    }
+
+    if (toml["Server"]["server-ip"]) {
+        if (toml["Server"]["server-ip"].value<string>().has_value()) {
+            server_data.ip = toml["Server"]["server-ip"].value<string>().value();
+        } else {
+            cerr << "server-ip has to be a string that is not empty" << endl;
+            return false;
+        }
+    }
+
+    if (toml["Logging"]["log-to-file"]) {
+        if (toml["Logging"]["log-to-file"].value<bool>().has_value()) {
+            log_settings.log_to_file = toml["Logging"]["log-to-file"].value<bool>().value();
+        } else {
+            cerr << "log-to-file has to be a boolean" << endl;
+            return false;
+        }
+    }
+
+    if (toml["Logging"]["log-level-debug"] && log_settings.log_to_file) {
+        if (toml["Logging"]["log-level-debug"].value<bool>().has_value()) {
+            log_settings.log_level_debug = toml["Logging"]["log-level-debug"].value<bool>().value();
+        } else {
+            cerr << "log-level-debug has to be a boolean" << endl;
+            return false;
+        }
+    } else if(toml["Logging"]["log-level-debug"]) {
+        cerr << "log-level-debug cant be set without setting log-to-file true" << endl;
+        return false;
+    }
+
+    if (toml["Logging"]["log-file"] && log_settings.log_to_file) {
+        if (toml["Logging"]["log-file"].value<string>().has_value()) {
+            log_settings.log_file = toml["Logging"]["log-file"].value<string>().value();
+        } else {
+            cerr << "log-file has to be a string that is not empty" << endl;
+            return false;
+        }
+    } else if(toml["Logging"]["log-file"]) {
+        cerr << "log-file cant be set without setting log-to-file true" << endl;
+        return false;
+    }
+
+    return true;
+}
+
+
+void Log_Settings::config_logger() {
+
+    if (this->log_to_file) {
+        //Create rotating file multi-threaded logger
+        try {
+            auto file_logger = spdlog::rotating_logger_mt("file_logger", this->log_file, 1048576 * 10, 3);
+
+            file_logger->set_pattern("[%H:%M:%S] [thread %t] [%^%l%$] %v");
+
+
+            if (this->log_level_debug) {
+                file_logger->set_level(spdlog::level::debug);
+                file_logger->flush_on(spdlog::level::debug);
+            } else {
+                file_logger->set_level(spdlog::level::info);
+                file_logger->flush_on(spdlog::level::info);
+            }
+
+            spdlog::set_default_logger(file_logger);
+
+        } catch (spdlog::spdlog_ex& e) {
+            cerr << "Error can't create Logger!" << endl << e.what() << endl;
+            exit(1);
+        }
+    
+    } else {
+        spdlog::set_level(spdlog::level::off);
+        spdlog::flush_on(spdlog::level::off);
+    }
 }
 
 

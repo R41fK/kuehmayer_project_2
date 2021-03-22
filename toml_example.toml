@@ -1,0 +1,7 @@
+[Server]
+port = 2596
+server-ip = "localhost"
+
+[Logging]
+log-to-file = true
+log-level-debug = true

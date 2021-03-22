@@ -5,11 +5,6 @@
 #include <json.hpp>
 #include <toml.hpp>
 
-std::optional<nlohmann::json> validate_json(std::string);
-
-std::optional<toml::table> validate_toml(std::string);
-
-
 struct Server {
     std::string ip{"127.0.0.1"};
     short unsigned int port{1113};
@@ -26,3 +21,12 @@ struct Log_Settings {
     void config_logger();
     void print_logger_config();
 };
+
+
+std::optional<nlohmann::json> validate_json(std::string);
+
+std::optional<toml::table> validate_toml(std::string);
+
+bool config_from_json(nlohmann::json, Server&, Log_Settings&);
+
+bool config_from_toml(toml::table, Server&, Log_Settings&);
