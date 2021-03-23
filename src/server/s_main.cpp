@@ -90,6 +90,8 @@ int main(int argc, char* argv[]) {
 
     logger_settings.config_logger();
 
+    vector<std::thread> thread_pool{};
+
     try {
 
         asio::io_context ctx;
@@ -101,17 +103,16 @@ int main(int argc, char* argv[]) {
         cout << rang::fg::green
             << rang::style::bold  << "Started Server on port: "
             << rang::fg::yellow   << server_data.port 
-            << endl
-            ;
+            << endl;
+
 
         logger_settings.print_logger_config();
-
 
         spdlog::info("Started Server!");
 
         acceptor.listen();
 
-        while (1) {
+        while (true) {
             
             ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
 
@@ -141,7 +142,7 @@ int main(int argc, char* argv[]) {
                 spdlog::info("Client disconnected");
             }};
 
-            t.detach();
+            thread_pool.push_back(move(t));
         }
 
 
@@ -149,6 +150,10 @@ int main(int argc, char* argv[]) {
         spdlog::error(e.what());
         fmt::print("Exception: {} occured! Server Stopped\n", e.what()); 
     } 
+
+    for (std::thread& t : thread_pool) {
+        t.join();
+    }
 
     google::protobuf::ShutdownProtobufLibrary();
 }

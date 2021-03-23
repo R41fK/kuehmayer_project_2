@@ -201,9 +201,11 @@ int start_server(bool start_server, Server server_data, Log_Settings logger_sett
 
                 execv("./server",  &args[0]);
             } else {
-                this_thread::sleep_for(chrono::milliseconds(50));
+                this_thread::sleep_for(chrono::milliseconds(500));
             }
-        }           
+        } else {
+            return INT_MIN;
+        }          
     }
     
     return pid;

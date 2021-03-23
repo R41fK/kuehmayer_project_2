@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     if (pid_a == 0) {
         execl("./server", "server", nullptr);
     } else {
-        this_thread::sleep_for(chrono::milliseconds(50));
+        this_thread::sleep_for(chrono::milliseconds(500));
         Repl repl{false};
         Server server_data{};
         repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};

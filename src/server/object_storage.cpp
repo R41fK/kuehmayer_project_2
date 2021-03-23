@@ -201,6 +201,7 @@ string Object_Storage::new_action(string data) {
         }
     } else {
         spdlog::info(fmt::format("Message could not be Parsed to Proto objekt. Message = '{}'", data));
+        return "pars error";
     }
 
     return "ok";

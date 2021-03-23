@@ -13,15 +13,16 @@
 using namespace std;
 
 
-string send_message(string msg, Repl repl) {
+string send_message(string msg, asio::ip::tcp::iostream* strm) {
     string dec_msg{message_utility::to_ascii(msg)};
 
-    *repl.strm << dec_msg;
+    *strm << dec_msg;
 
     string data;
 
-    getline(*repl.strm, data);
+    getline(*strm, data);
 
+    // cout << data << endl;
     return message_utility::from_ascii(data);
 }
 
@@ -32,10 +33,12 @@ TEST_CASE("Repl send message sync Builder") {
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
+    REQUIRE(*repl.strm);
+
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl)};
+    string data{send_message(builder.get_proto_message("test"), repl.strm)};
     CHECK(data == "ok");
 
     repl.strm->close();
@@ -47,10 +50,12 @@ TEST_CASE("Repl send message build Car") {
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
+    REQUIRE(*repl.strm);
+
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl)};
+    string data{send_message(builder.get_proto_message("test"), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -60,7 +65,9 @@ TEST_CASE("Repl send message build Car") {
     msg.set_name("car");
     msg.set_builder("test");
 
-    data = send_message(msg.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(msg.SerializeAsString(), repl.strm);
 
     CHECK(data == "ok");
 
@@ -73,11 +80,13 @@ TEST_CASE("Repl send message sync Car_Calculator") {
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
+    REQUIRE(*repl.strm);
+
     Car_Calculator calc{};
     calc.is_under_24();
     calc.set_deposit(7000);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl)};
+    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
 
     CHECK(data == "ok");
 
@@ -91,10 +100,12 @@ TEST_CASE("Repl send message calculate insurance") {
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
+    REQUIRE(*repl.strm);
+
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl)};
+    string data{send_message(builder.get_proto_message("test"), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -104,7 +115,9 @@ TEST_CASE("Repl send message calculate insurance") {
     msg.set_name("car");
     msg.set_builder("test");
 
-    data = send_message(msg.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(msg.SerializeAsString(), repl.strm);
 
     REQUIRE(data == "ok");
 
@@ -112,8 +125,9 @@ TEST_CASE("Repl send message calculate insurance") {
     calc1.set_insurance_class(1);
     calc1.is_over_24();
 
+    REQUIRE(*repl.strm);
 
-    data = send_message(calc1.get_proto_message("calc1", "car"), repl);
+    data = send_message(calc1.get_proto_message("calc1", "car"), repl.strm);
 
     REQUIRE(data == "ok");
 
@@ -122,7 +136,9 @@ TEST_CASE("Repl send message calculate insurance") {
     ms.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
     ms.set_name("calc1");
 
-    data = send_message(ms.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(ms.SerializeAsString(), repl.strm);
 
     REQUIRE(builder.build().has_value());
 
@@ -141,10 +157,12 @@ TEST_CASE("Repl send message calculate leasing") {
     Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
+    REQUIRE(*repl.strm);
+
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl)};
+    string data{send_message(builder.get_proto_message("test"), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -154,7 +172,9 @@ TEST_CASE("Repl send message calculate leasing") {
     msg.set_name("car");
     msg.set_builder("test");
 
-    data = send_message(msg.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(msg.SerializeAsString(), repl.strm);
 
     REQUIRE(data == "ok");
 
@@ -163,7 +183,9 @@ TEST_CASE("Repl send message calculate leasing") {
     calc.set_leasing_duration(5);
     calc.set_rest_value(5000);
 
-    data = send_message(calc.get_proto_message("calc", "car"), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(calc.get_proto_message("calc", "car"), repl.strm);
 
     REQUIRE(data == "ok");
 
@@ -171,8 +193,10 @@ TEST_CASE("Repl send message calculate leasing") {
 
     ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
     ms.set_name("calc");
+    
+    REQUIRE(*repl.strm);
 
-    data = send_message(ms.SerializeAsString(), repl);
+    data = send_message(ms.SerializeAsString(), repl.strm);
 
     optional<Car> o_car{builder.build()};
 
@@ -198,7 +222,9 @@ TEST_CASE("Repl send message calculate leasing calculator not found") {
     ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
     ms.set_name("calc");
 
-    string data{send_message(ms.SerializeAsString(), repl)};
+    REQUIRE(*repl.strm);
+
+    string data{send_message(ms.SerializeAsString(), repl.strm)};
 
     CHECK(data == "Car_Calculator calc does not exist");
 
@@ -217,7 +243,9 @@ TEST_CASE("Repl send message calculate insurance failed") {
     calc.set_leasing_duration(5);
     calc.set_rest_value(5000);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl)};
+    REQUIRE(*repl.strm);
+
+    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -226,7 +254,9 @@ TEST_CASE("Repl send message calculate insurance failed") {
     ms.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
     ms.set_name("calc");
 
-    data = send_message(ms.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(ms.SerializeAsString(), repl.strm);
 
     CHECK(data == "Car_Calculator calc failed calculating the insurance rate. Not all key components (car & insurance_class) were set!");
 
@@ -244,7 +274,9 @@ TEST_CASE("Repl send message calculate leasing failed") {
     Car_Calculator calc{};
     calc.set_deposit(2000);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl)};
+    REQUIRE(*repl.strm);
+
+    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -253,7 +285,9 @@ TEST_CASE("Repl send message calculate leasing failed") {
     ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
     ms.set_name("calc");
 
-    data = send_message(ms.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(ms.SerializeAsString(), repl.strm);
 
     CHECK(data == "Car_Calculator calc failed calculating the leasing rate. Not all key components (car, rest_value, leasing_duration & deposite) were set!");
 
@@ -272,7 +306,9 @@ TEST_CASE("Repl send message build Car no Builder") {
     msg.set_name("car");
     msg.set_builder("test");
 
-    string data{send_message(msg.SerializeAsString(), repl)};
+    REQUIRE(*repl.strm);
+
+    string data{send_message(msg.SerializeAsString(), repl.strm)};
 
     CHECK(data == "Builder test does not exist");
 
@@ -289,7 +325,9 @@ TEST_CASE("Repl send message build Car. Builder failed") {
     Car_Builder builder{};
     builder.ps(60);
 
-    string data{send_message(builder.get_proto_message("test"), repl)};
+    REQUIRE(*repl.strm);
+
+    string data{send_message(builder.get_proto_message("test"), repl.strm)};
 
     REQUIRE(data == "ok");
 
@@ -299,7 +337,9 @@ TEST_CASE("Repl send message build Car. Builder failed") {
     msg.set_name("car");
     msg.set_builder("test");
 
-    data = send_message(msg.SerializeAsString(), repl);
+    REQUIRE(*repl.strm);
+
+    data = send_message(msg.SerializeAsString(), repl.strm);
 
     CHECK(data == "Builder test failed building. Not all key components (ps & purchase_value) were set!");
 
@@ -317,7 +357,11 @@ TEST_CASE("Repl sync calculator, no car found") {
     calc.set_leasing_duration(5);
     calc.set_rest_value(5000);
 
-    string data{send_message(calc.get_proto_message("calc", "car"), repl)};
+    REQUIRE(*repl.strm);
 
-    REQUIRE(data == "Car car does not exist");
+    string data{send_message(calc.get_proto_message("calc", "car"), repl.strm)};
+
+    CHECK(data == "Car car does not exist");
+
+    repl.strm->close();
 }

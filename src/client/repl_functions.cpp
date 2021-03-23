@@ -31,7 +31,7 @@ void Repl::show_help() {
     fmt::print(
     R"(Commands:
     help | h                                        shows this help message
-    end | stop                                      stops the programm
+    end | stop | exit                               stops the programm
 
     car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
     <calculator_name> show car_calculator           shows the car_calculator object for the object with the name <calculator_name>
@@ -145,7 +145,7 @@ void Repl::send_message(string msg) {
 
         spdlog::debug(fmt::format("Client decoded message '{}'", data));
 
-        if (data != "ok" || data == "") {
+        if (data != "ok" && data != "") {
             fmt::print(fg(fmt::color::alice_blue), "{}\n", data);
         }
         
@@ -213,9 +213,9 @@ void Repl::stop() {
 
 void Repl::operator()() {
 
-    this->send_message("");
-
     string input{};
+
+    fmt::print("Started ... for the comands type help or h\n");
 
     while (this->running) {
         

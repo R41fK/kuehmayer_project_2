@@ -91,6 +91,10 @@ int main(int argc, char* argv[]) {
 
     int pid{start_server(_start_server, server_data, logger_settings, config_file_json, config_file_toml)};
     
+    if (pid == INT_MIN) {
+        cerr << "Server Ip has to be an address to the local machine if you want to start the server at the same time!" << endl;
+        exit(1);
+    }
 
     if (config_file_json != "") {
         optional<nlohmann::json> o_json{validate_json(config_file_json)};
