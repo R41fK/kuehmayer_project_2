@@ -10,6 +10,8 @@ struct Server {
     short unsigned int port{1113};
 
     std::string get_port_as_string();
+    bool validate_localhost();
+    bool validate_ip_address();
 };
 
 struct Log_Settings {
@@ -30,3 +32,5 @@ std::optional<toml::table> validate_toml(std::string);
 bool config_from_json(nlohmann::json, Server&, Log_Settings&);
 
 bool config_from_toml(toml::table, Server&, Log_Settings&);
+
+int start_server(bool, Server, Log_Settings, std::string, std::string);

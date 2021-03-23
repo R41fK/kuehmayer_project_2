@@ -187,7 +187,7 @@ void Repl::send_message(string msg) {
                     }
                 }
 
-                fmt::print(fg(fmt::color::red), "Server updated\n");
+                fmt::print(fg(fmt::color::aquamarine), "Server updated\n");
 
             } else {
                 spdlog::info(fmt::format("Connecting to the server with ip: {} and port: {} failed"
@@ -212,6 +212,8 @@ void Repl::stop() {
 }
 
 void Repl::operator()() {
+
+    this->send_message("");
 
     string input{};
 

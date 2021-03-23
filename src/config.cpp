@@ -3,6 +3,7 @@
 #include <optional>
 
 #include <json.hpp>
+#include "pystring.h"
 #include <rang.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -165,6 +166,50 @@ bool config_from_toml(toml::table toml, Server& server_data, Log_Settings& log_s
 }
 
 
+int start_server(bool start_server, Server server_data, Log_Settings logger_settings, string config_file_json, string config_file_toml) {
+    int pid{};
+    if (start_server) {
+        if (server_data.validate_localhost()) {
+            pid = fork();
+
+            if (pid == 0) {
+                vector<char*> args;
+
+                args.push_back((char*)"server");
+                args.push_back((char*)"-p");
+                args.push_back((char*)server_data.get_port_as_string().c_str());
+
+                if (logger_settings.log_to_file) {
+                    args.push_back((char*)"-l");
+                    if (logger_settings.log_level_debug) {
+                        args.push_back((char*)"-d");
+                    }
+
+                    args.push_back((char*)"--lock-file");
+                    args.push_back((char*)logger_settings.log_file.c_str());
+                }
+
+                if (config_file_json != "") {
+                    args.push_back((char*)"-j");
+                    args.push_back((char*) config_file_json.c_str());
+                } else if (config_file_toml != "") {
+                    args.push_back((char*)"-t");
+                    args.push_back((char*) config_file_toml.c_str());
+                }
+
+                args.push_back(nullptr);
+
+                execv("./server",  &args[0]);
+            } else {
+                this_thread::sleep_for(chrono::milliseconds(50));
+            }
+        }           
+    }
+    
+    return pid;
+}
+
+
 void Log_Settings::config_logger() {
 
     if (this->log_to_file) {
@@ -231,4 +276,49 @@ void Log_Settings::print_logger_config() {
 
 string Server::get_port_as_string() {
     return to_string(this->port);
+}
+
+bool Server::validate_ip_address() {
+
+    if (pystring::isalpha(this->ip)) { // return true if it is a domain name... can't check them
+        return true;
+    }
+
+    if (pystring::count(this->ip, ".") != 3
+       || pystring::endswith(this->ip, ".0")
+       || pystring::endswith(this->ip, ".255")
+       ) {
+        return false;
+    }
+
+    vector<string> str{};
+    pystring::split(this->ip, str, ".");
+
+    for (size_t i=0; i < str.size(); ++i) {
+        if (pystring::isdigit(str[i]) && str[i].length() <= 3) {
+            int numb{stoi(str[i])};
+            if (numb > 255 || numb < 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool Server::validate_localhost() {
+    if (this->ip == "localhost") {
+        return true;
+    }
+
+    if (!pystring::startswith(this->ip, "127.") 
+       || pystring::isalpha(this->ip)
+       ) {
+        return false;
+    }
+    
+    return this->validate_ip_address();
 }

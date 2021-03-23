@@ -2,6 +2,7 @@
 #include <iostream>
 #include <thread>
 #include <optional>
+#include <sys/wait.h>
 
 #include <CLI11.hpp>
 #include <fmt/core.h>
@@ -21,6 +22,17 @@
 using namespace asio;
 using namespace std;
 
+string vaidate_ip_address_for_cli(const string& str) {
+    Server server_data;
+    server_data.ip = str;
+    if (server_data.validate_ip_address()) {
+        return "";
+    } else {
+        return "Invalid Ip-Address for the Server!";
+    }
+}
+
+
 int main(int argc, char* argv[]) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -30,13 +42,15 @@ int main(int argc, char* argv[]) {
     logger_settings.log_file = "logs/client.log";
     string config_file_json{};
     string config_file_toml{};
+    bool _start_server{};
 
     CLI::App app("client");
 
     app.add_option("-p, --port", server_data.port, "port to connect to", true);
 
 
-    app.add_option("-s, --server-ip", server_data.ip, "server-ip to connect to", true);
+    app.add_option("-s, --server-ip", server_data.ip, "server-ip to connect to", true)
+                   ->check(vaidate_ip_address_for_cli);
 
 
     auto flag_l{app.add_flag("-l, --log-to-file"
@@ -68,7 +82,15 @@ int main(int argc, char* argv[]) {
                   )->excludes(option_j)
                    ->check(CLI::ExistingFile);
 
+    app.add_flag("--start-server"
+                , _start_server
+                , "Starts the server with the same options that the client has"
+                );
+
     CLI11_PARSE(app, argc, argv);
+
+    int pid{start_server(_start_server, server_data, logger_settings, config_file_json, config_file_toml)};
+    
 
     if (config_file_json != "") {
         optional<nlohmann::json> o_json{validate_json(config_file_json)};
@@ -116,4 +138,11 @@ int main(int argc, char* argv[]) {
     google::protobuf::ShutdownProtobufLibrary();
 
     spdlog::info(fmt::format("Client stoped"));
+
+    if (pid != 0) {
+        int status_a{};
+        kill(pid, SIGTERM);
+
+        waitpid(pid, &status_a, 0);
+    }
 }
