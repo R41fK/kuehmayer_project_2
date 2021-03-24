@@ -1,3 +1,6 @@
+#include "json.hpp"
+using namespace nlohmann;
+
 #include <doctest.h>
 #include <asio.hpp>
 #include <fmt/core.h>

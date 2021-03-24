@@ -1,3 +1,6 @@
+#include "json.hpp"
+using namespace nlohmann;
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>

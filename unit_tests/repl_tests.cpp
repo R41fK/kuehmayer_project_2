@@ -1,4 +1,8 @@
 #include <doctest.h>
+
+#include "json.hpp"
+using namespace nlohmann;
+
 #include <peglib.h>
 
 #include "client/repl.h"

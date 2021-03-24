@@ -1,6 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
+#include "json.hpp"
+using namespace nlohmann;
+
 #include <iostream>
 #include <thread>
 #include <sys/wait.h>
