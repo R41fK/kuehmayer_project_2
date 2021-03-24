@@ -38,6 +38,10 @@ private:
         SHOW        <- NAME 'show car_calculator'
                      / NAME 'show car_builder'
                      / NAME 'show car'
+                     / 'ls'
+                     / 'show all'
+                     / 'show'
+                     
 
         CALCULATOR  <- 'car_calculator' NAME
                      / NAME 'car =' NAME

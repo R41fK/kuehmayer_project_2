@@ -101,9 +101,10 @@ int main(int argc, char* argv[]) {
         cout << endl;
 
         cout << rang::fg::green
-            << rang::style::bold  << "Started Server on port: "
-            << rang::fg::yellow   << server_data.port 
-            << endl;
+             << rang::style::bold  << "Started Server on port: "
+             << rang::fg::yellow   << server_data.port 
+             << endl
+        ;
 
 
         logger_settings.print_logger_config();

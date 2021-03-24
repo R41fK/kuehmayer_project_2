@@ -82,6 +82,25 @@ Repl::Repl(bool running, Server server_data):
                     no_Car(any_cast<string>(vs[0]));
                 }
                 break;
+
+            default: // ls or show or show all
+                fmt::print(fg(fmt::color::alice_blue), "Objectnames:\n");
+                fmt::print(fg(fmt::color::alice_blue), "\tCar_Builder:\n");
+                for (map<string, Car_Builder>::iterator it=car_builders.begin(); it != car_builders.end(); ++it) {
+                    fmt::print(fg(fmt::color::alice_blue), "\t\t{}\n", it->first);
+                }
+                fmt::print("\n");
+                fmt::print(fg(fmt::color::alice_blue), "\tCar:\n");
+                for (map<string, Car>::iterator it=cars.begin(); it != cars.end(); ++it) {
+                    fmt::print(fg(fmt::color::alice_blue), "\t\t{}\n", it->first);
+                }
+                fmt::print("\n");
+                fmt::print(fg(fmt::color::alice_blue), "\tCar_Calculator:\n");
+                for (map<string, Car_Calculator>::iterator it=car_calculators.begin(); it != car_calculators.end(); ++it) {
+                    fmt::print(fg(fmt::color::alice_blue), "\t\t{}\n", it->first);
+                }
+                fmt::print("\n");
+
         }
     };
 

@@ -71,6 +71,9 @@ TEST_CASE("Repl parse") {
     CHECK(repl.parser.parse("stop"));
     CHECK(repl.parser.parse("help"));
     CHECK(repl.parser.parse("h"));
+    CHECK(repl.parser.parse("show"));
+    CHECK(repl.parser.parse("ls"));
+    CHECK(repl.parser.parse("show all"));
     CHECK(repl.parser.parse("car show car"));
     CHECK(repl.parser.parse("test show car_builder"));
     CHECK(repl.parser.parse("calc show car_calculator"));
