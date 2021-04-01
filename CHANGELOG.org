@@ -1,5 +1,26 @@
 * Changelog
 ** [Unreleased]
+
+** [0.0.8] - 2021-03-29
+*** Added
+- first implementation of grpc
+- include/client/client_grpc.h
+- include/server/server_grpc.h
+- src/client/client_grpc.cpp
+- messages/grpc_message.proto
+- src/server/server_grpc.cpp
+*** Updated
+- changes for the implementation of grpc
+- include/client/repl.h
+- include/config.h
+- integration_tests/main_int_tests.cpp
+- integration_tests/repl_int_tests.cpp
+- src/client/c_main.cpp
+- src/client/repl_construcor.cpp
+- src/server/s_main.cpp
+-src/config.cpp
+
+** [0.0.7] - 2021-03-22
 *** Updated
 - enable to configure the programs by config files
 - include/config.h

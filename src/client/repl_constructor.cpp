@@ -31,7 +31,7 @@ using namespace peg;
 
 
 
-Repl::Repl(bool running, Server server_data):
+Repl::Repl(bool running, config::Server server_data):
     running{running},
     server_data{server_data}
     {

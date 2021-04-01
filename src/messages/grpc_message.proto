@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package shutdown_message;
+
+// The greeter service definition.
+service Shutdown {
+    // Sends a greeting
+    rpc shutdown (ShutdownRequest) returns (ShutdownReply) {}
+  }
+  
+  // The request message containing the user's name.
+  message ShutdownRequest {
+      oneof type {
+          bool imediate = 1;
+          bool normal = 2;
+      }
+  }
+  
+  // The response message containing the greetings
+  message ShutdownReply {
+      bool finished_shutdown = 1;
+  }

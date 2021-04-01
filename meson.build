@@ -49,19 +49,35 @@ add_global_arguments('-I' + get_option('toml_include_dir'), language : 'cpp')
 # # protobuf: must be installed independently and has to be found...
 protoc = find_program('protoc', required : true)
 protobuf_dep = dependency('protobuf', required : true)
+grpccpp_dep = dependency('grpc++', required : true)
+grpc_plug = find_program('grpc_cpp_plugin', required : true)
 
-gen = generator(protoc, \
+gen_proto = generator(protoc, \
   output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
-  arguments : ['--proto_path=@CURRENT_SOURCE_DIR@/src/messages/', '--cpp_out=@BUILD_DIR@', '@PLAINNAME@'])
+  arguments : ['--proto_path=@CURRENT_SOURCE_DIR@/src/messages/', '--cpp_out=@BUILD_DIR@', '@PLAINNAME@']
+)
 
 # change proto file accordingly
-proto = gen.process( 'src/messages/message.proto'
+proto = gen_proto.process( 'src/messages/message.proto'
                    , 'src/messages/car.proto'
                    , 'src/messages/calculator.proto'
                    )
 # end protobuf
 
+gen_grpc = generator(protoc, \
+  output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h', '@BASENAME@.grpc.pb.cc', '@BASENAME@.grpc.pb.h'],
+  arguments : ['--proto_path=@CURRENT_SOURCE_DIR@/src/messages/', '--grpc_out=@BUILD_DIR@', '--cpp_out=@BUILD_DIR@', '@PLAINNAME@', 
+              '--plugin=protoc-gen-grpc=' + grpc_plug.path()]
+)
+
+
+grpc = gen_grpc.process('src/messages/grpc_message.proto')
+
+
+
 #subdir('SUBDIR1')
+
+
 
 inc_dir = include_directories('include')
 
@@ -69,11 +85,12 @@ inc_dir = include_directories('include')
 client_src = ['src/client/c_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp',
               'src/client/repl_constructor.cpp', 'src/client/repl_functions.cpp',
-              'src/message_utility.cpp']
+              'src/message_utility.cpp', 'src/client/client_grpc.cpp']
 
 server_src = ['src/server/s_main.cpp', 'src/pystring.cpp', 'src/config.cpp', 
               'src/car_calculator.cpp', 'src/car.cpp', 'src/car_builder.cpp', 
-              'src/server/object_storage.cpp', 'src/message_utility.cpp']
+              'src/server/object_storage.cpp', 'src/message_utility.cpp',
+              'src/server/server_grpc.cpp']
 
 unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/car.cpp', 
                  'src/car_builder.cpp', 'unit_tests/car_calculator_test.cpp', 
@@ -89,28 +106,28 @@ int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_
 
 #protobuf: src = ['src/main.cpp', generated]
 
-executable('client', proto,
+executable('client', proto, grpc, 
            sources : client_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep],
+           dependencies : [thread_dep, protobuf_dep, grpccpp_dep],
            cpp_args : '-Wno-psabi'
           )
 
-executable('server', proto,
+executable('server', proto, grpc,
            sources : server_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep],
+           dependencies : [thread_dep, protobuf_dep, grpccpp_dep],
            cpp_args : '-Wno-psabi'
           )
 
-executable('unit_tests', proto,
+executable('unit_tests', proto, 
            sources : unit_test_src,
            include_directories : inc_dir,
            dependencies : [thread_dep, protobuf_dep],
            cpp_args : ['-DTESTS', '-Wno-psabi']
           )
 
-executable('integration_tests', proto,
+executable('integration_tests', proto, 
            sources : int_test_src,
            include_directories : inc_dir,
            dependencies : [thread_dep, protobuf_dep],

@@ -3,6 +3,7 @@
 #include <thread>
 #include <optional>
 #include <sys/wait.h>
+#include <grpc/grpc.h>
 
 #include <CLI11.hpp>
 #include <fmt/core.h>
@@ -16,14 +17,13 @@
 #include "car.h"
 #include "car_builder.h"
 #include "client/repl.h"
-
-#include "message.pb.h"
+#include "client/client_grpc.h"
 
 using namespace asio;
 using namespace std;
 
 string vaidate_ip_address_for_cli(const string& str) {
-    Server server_data;
+    config::Server server_data;
     server_data.ip = str;
     if (server_data.validate_ip_address()) {
         return "";
@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    Server server_data;
-    Log_Settings logger_settings;
+    config::Server server_data;
+    config::Log_Settings logger_settings;
     logger_settings.log_file = "logs/client.log";
     string config_file_json{};
     string config_file_toml{};
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (config_file_json != "") {
-        optional<nlohmann::json> o_json{validate_json(config_file_json)};
+        optional<nlohmann::json> o_json{config::validate_json(config_file_json)};
 
         if (o_json.has_value()) {
             if (!config_from_json(o_json.value(), ref(server_data), ref(logger_settings))) {
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
     } else if (config_file_toml != "") {
-        optional<toml::table> o_toml{validate_toml(config_file_toml)};
+        optional<toml::table> o_toml{config::validate_toml(config_file_toml)};
 
         if (o_toml.has_value()) {
             if (!config_from_toml(o_toml.value(), ref(server_data), ref(logger_settings))) {
@@ -134,6 +134,9 @@ int main(int argc, char* argv[]) {
 
     logger_settings.print_logger_config();
 
+    RPC_Client client{grpc::CreateChannel("localhost:" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
+
+    cout << client.send_shutdown(false) << " Test" << endl;
 
     std::thread tr{Repl(true, server_data)};
 

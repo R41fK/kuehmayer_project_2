@@ -1,6 +1,10 @@
 #include <iostream>
 #include <thread>
 #include <asio.hpp>
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
+#include <grpc/support/log.h>
+#include <unistd.h>
 
 #include <CLI11.hpp>
 #include <fmt/core.h>
@@ -12,26 +16,35 @@
 #include "message_utility.h"
 #include "config.h"
 #include "server/object_storage.h"
+#include "server/server_grpc.h"
 
 #include "message.pb.h"
+#include "grpc_message.pb.h"
+#include "grpc_message.grpc.pb.h"
 
 using namespace asio;
 using namespace std;
 
+using grpc::Server;
+using grpc::ServerAsyncResponseWriter;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::ServerCompletionQueue;
+using grpc::Status;
 
 int main(int argc, char* argv[]) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    Server server_data;
-    Log_Settings logger_settings;
+    config::Server server_data;
+    config::Log_Settings logger_settings;
     logger_settings.log_file = "logs/server.log";
     string config_file_json{};
     string config_file_toml{};
 
     CLI::App app("client");
 
-    app.add_option("-p, --port", server_data.port, "port to connect to", true);
+    app.add_option("-p, --port", server_data.port, "port to connect to for asio. Grpc will connect one port above", true);
 
     auto flag_l{app.add_flag("-l, --log-to-file"
                             , logger_settings.log_to_file
@@ -67,7 +80,7 @@ int main(int argc, char* argv[]) {
 
 
     if (config_file_json != "") {
-        optional<nlohmann::json> o_json{validate_json(config_file_json)};
+        optional<nlohmann::json> o_json{config::validate_json(config_file_json)};
 
         if (o_json.has_value()) {
             if (!config_from_json(o_json.value(), ref(server_data), ref(logger_settings))) {
@@ -77,7 +90,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
     } else if (config_file_toml != "") {
-        optional<toml::table> o_toml{validate_toml(config_file_toml)};
+        optional<toml::table> o_toml{config::validate_toml(config_file_toml)};
 
         if (o_toml.has_value()) {
             if (!config_from_toml(o_toml.value(), ref(server_data), ref(logger_settings))) {
@@ -110,6 +123,27 @@ int main(int argc, char* argv[]) {
         logger_settings.print_logger_config();
 
         spdlog::info("Started Server!");
+
+        std::thread grpc{[&]() {
+            Shutdown_Implementation service{server_data};
+            grpc::EnableDefaultHealthCheckService(true);
+            
+            string server_address{"[::]:" + server_data.get_grpc_port()};
+
+            
+            grpc::ServerBuilder builder;
+            // Listen on the given address without any authentication mechanism
+            
+            builder.AddListeningPort(ref(server_address), grpc::InsecureServerCredentials());
+            // Register "service" as the instance through which
+            // communication with client takes place
+            builder.RegisterService(&service);
+            // Assembling the server
+            cout << "Server listening on port: " << server_address  << endl;
+            std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+
+            server->Wait();
+        }};
 
         acceptor.listen();
 
@@ -145,12 +179,14 @@ int main(int argc, char* argv[]) {
 
             thread_pool.push_back(move(t));
         }
-
+        grpc.join();
 
     } catch (asio::system_error& e) {
         spdlog::error(e.what());
         fmt::print("Exception: {} occured! Server Stopped\n", e.what()); 
     } 
+
+    
 
     for (std::thread& t : thread_pool) {
         t.join();

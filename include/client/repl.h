@@ -21,7 +21,7 @@ private:
     bool& running;
     std::vector<std::string> messages{};
 
-    Server server_data;
+    config::Server server_data;
     asio::ip::tcp::iostream* strm;
 
     std::map<std::string, Car> cars{};
@@ -101,7 +101,7 @@ private:
 
 public:
 
-    Repl(bool, Server);
+    Repl(bool, config::Server);
 
     // a method that starts the repl, should be started in its own thread
     void operator()();

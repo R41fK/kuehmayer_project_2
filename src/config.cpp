@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 using namespace std;
 
-optional<json> validate_json(string file_name) {
+optional<json> config::validate_json(string file_name) {
 
     try {
         json j;
@@ -35,7 +35,7 @@ optional<json> validate_json(string file_name) {
 }
 
 
-optional<toml::table> validate_toml(string file_name) {
+optional<toml::table> config::validate_toml(string file_name) {
 
     try {
         toml::table t =  toml::parse_file(file_name);
@@ -53,7 +53,7 @@ optional<toml::table> validate_toml(string file_name) {
 }
 
 
-bool config_from_json(nlohmann::json json, Server& server_data, Log_Settings& log_settings) {
+bool config::config_from_json(nlohmann::json json, config::Server& server_data, config::Log_Settings& log_settings) {
 
     if (json.contains("port")) {
         if (json["port"].is_number_integer() && json["port"].is_number_unsigned()) {
@@ -109,7 +109,7 @@ bool config_from_json(nlohmann::json json, Server& server_data, Log_Settings& lo
 }
 
 
-bool config_from_toml(toml::table toml, Server& server_data, Log_Settings& log_settings) {
+bool config::config_from_toml(toml::table toml, config::Server& server_data, config::Log_Settings& log_settings) {
 
     if (toml["Server"]["port"]) {
         if (toml["Server"]["port"].value<short unsigned int>().has_value()) {
@@ -166,7 +166,7 @@ bool config_from_toml(toml::table toml, Server& server_data, Log_Settings& log_s
 }
 
 
-int start_server(bool start_server, Server server_data, Log_Settings logger_settings, string config_file_json, string config_file_toml) {
+int config::start_server(bool start_server, Server server_data, Log_Settings logger_settings, string config_file_json, string config_file_toml) {
     int pid{};
     if (start_server) {
         if (server_data.validate_localhost()) {
@@ -212,7 +212,7 @@ int start_server(bool start_server, Server server_data, Log_Settings logger_sett
 }
 
 
-void Log_Settings::config_logger() {
+void config::Log_Settings::config_logger() {
 
     if (this->log_to_file) {
         //Create rotating file multi-threaded logger
@@ -244,7 +244,7 @@ void Log_Settings::config_logger() {
 }
 
 
-void Log_Settings::print_logger_config() {
+void config::Log_Settings::print_logger_config() {
     if (this->log_to_file) {
         cout << endl;
         cout << rang::style::bold << rang::fg::yellow
@@ -276,11 +276,15 @@ void Log_Settings::print_logger_config() {
 
 
 
-string Server::get_port_as_string() {
+string config::Server::get_port_as_string() {
     return to_string(this->port);
 }
 
-bool Server::validate_ip_address() {
+string config::Server::get_grpc_port() {
+    return to_string(this->port + 1);
+}
+
+bool config::Server::validate_ip_address() {
 
     if (pystring::isalpha(this->ip)) { // return true if it is a domain name... can't check them
         return true;
@@ -311,7 +315,7 @@ bool Server::validate_ip_address() {
 }
 
 
-bool Server::validate_localhost() {
+bool config::Server::validate_localhost() {
     if (this->ip == "localhost") {
         return true;
     }
