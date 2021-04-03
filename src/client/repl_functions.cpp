@@ -36,6 +36,7 @@ void Repl::show_help() {
     help | h                                        shows this help message
     end | stop | exit                               stops the programm
     ls | show | show all                            shows alle objectnames
+    file                                            run a skript with command
 
     car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
     <calculator_name> show car_calculator           shows the car_calculator object for the object with the name <calculator_name>
@@ -219,7 +220,11 @@ void Repl::operator()() {
 
     string input{};
 
-    fmt::print("Started ... for the comands type help or h. All commands are caseinsensitive!\n");
+    send_message(input);
+
+    if (this->running) {
+        fmt::print("Started ... for the comands type help or h. All commands are caseinsensitive!\n");
+    }
 
     while (this->running) {
         
