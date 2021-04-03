@@ -134,22 +134,25 @@ int main(int argc, char* argv[]) {
 
     logger_settings.print_logger_config();
 
-    RPC_Client client{grpc::CreateChannel("localhost:" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
-
-    cout << client.send_shutdown(false) << " Test" << endl;
+    
 
     std::thread tr{Repl(true, server_data)};
 
     tr.join();
 
-    google::protobuf::ShutdownProtobufLibrary();
-
     spdlog::info(fmt::format("Client stoped"));
 
     if (pid != 0) {
         int status_a{};
-        kill(pid, SIGTERM);
 
+        RPC_Client client{grpc::CreateChannel(server_data.ip + ":" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
+        client.send_shutdown();
+
+        cout << "waiting" << endl;
         waitpid(pid, &status_a, 0);
     }
+
+    google::protobuf::ShutdownProtobufLibrary();
+
+    cout << "finished client" << endl;
 }

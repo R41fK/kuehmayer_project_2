@@ -19,7 +19,7 @@ using shutdown_message::ShutdownReply;
 
 using namespace std;
 
-bool RPC_Client::send_shutdown(bool imediate) {
+bool RPC_Client::send_shutdown() {
     ClientContext context;
     ShutdownReply reply;
     ShutdownRequest request;
@@ -29,9 +29,9 @@ bool RPC_Client::send_shutdown(bool imediate) {
     Status status = stub_->shutdown(&context, request, &reply);
 
     if (!status.ok()) {
-        std::cout << status.error_code() << ": " << status.error_message() << imediate << std::endl;
+        
         return false;
     }
 
-    return true;
+    return reply.allowed_to_shutdown();
 }

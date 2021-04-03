@@ -10,6 +10,7 @@ namespace config {
     struct Server {
         std::string ip{"127.0.0.1"};
         short unsigned int port{1113};
+        bool allow_shutdown{false};
 
         std::string get_port_as_string();
         std::string get_grpc_port();

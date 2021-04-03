@@ -15,5 +15,5 @@ class RPC_Client {
     public:
     RPC_Client(std::shared_ptr<grpc::Channel> channel) : stub_(shutdown_message::Shutdown::NewStub(channel)) {}
 
-    bool send_shutdown(bool);
+    bool send_shutdown();
 };

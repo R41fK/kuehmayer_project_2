@@ -1,7 +1,7 @@
 # uncomment as necessary
 project('Remote Method Invocation System', 'cpp',
         license : ['Boost'],
-        version : '0.0.6',
+        version : '0.0.8',
         default_options : ['cpp_std=c++17', 'warning_level=3', 'werror=true'])
 
 thread_dep = dependency('threads')
@@ -102,7 +102,8 @@ unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/c
 int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_int_tests.cpp',
                 'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 
                 'src/client/repl_constructor.cpp', 'src/client/repl_functions.cpp',
-                'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp']
+                'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp',
+                'src/client/client_grpc.cpp']
 
 #protobuf: src = ['src/main.cpp', generated]
 
@@ -127,9 +128,9 @@ executable('unit_tests', proto,
            cpp_args : ['-DTESTS', '-Wno-psabi']
           )
 
-executable('integration_tests', proto, 
+executable('integration_tests', proto, grpc,
            sources : int_test_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep],
+           dependencies : [thread_dep, protobuf_dep, grpccpp_dep],
            cpp_args : ['-DTESTS', '-Wno-psabi']
           )

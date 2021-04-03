@@ -197,6 +197,7 @@ int config::start_server(bool start_server, Server server_data, Log_Settings log
                     args.push_back((char*) config_file_toml.c_str());
                 }
 
+                args.push_back((char*)"-e");
                 args.push_back(nullptr);
 
                 execv("./server",  &args[0]);

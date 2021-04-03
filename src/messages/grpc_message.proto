@@ -10,13 +10,10 @@ service Shutdown {
   
   // The request message containing the user's name.
   message ShutdownRequest {
-      oneof type {
-          bool imediate = 1;
-          bool normal = 2;
-      }
+    bool imediate = 1;
   }
   
   // The response message containing the greetings
   message ShutdownReply {
-      bool finished_shutdown = 1;
+      bool allowed_to_shutdown = 1;
   }

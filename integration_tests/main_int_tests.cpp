@@ -11,6 +11,7 @@ using namespace nlohmann;
 #include <asio.hpp>
 
 #include "client/repl.h"
+#include "client/client_grpc.h"
 
 using namespace std;
 
@@ -48,14 +49,15 @@ int main(int argc, char* argv[]) {
     // overrides
     context.setOption("no-breaks", true);             // don't break in the debugger when assertions fail
 
-    auto pid_a{fork()};
+    auto pid{fork()};
+    config::Server server_data{};
 
-    if (pid_a == 0) {
-        execl("./server", "server", nullptr);
+    if (pid == 0) {
+        execl("./server", "server", "-e" , nullptr);
     } else {
         this_thread::sleep_for(chrono::milliseconds(500));
         Repl repl{false};
-        config::Server server_data{};
+        
         repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
         if (!*repl.strm) {
             cerr << "No Connection to the Server possible!" << endl;
@@ -67,11 +69,12 @@ int main(int argc, char* argv[]) {
 
     int res = context.run(); // run
 
-    if (pid_a != 0) {
+    if (pid != 0) {
         int status_a{};
-        kill(pid_a, SIGTERM);
+        RPC_Client client{grpc::CreateChannel(server_data.ip + ":" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
+        client.send_shutdown();
 
-        waitpid(pid_a, &status_a, 0);
+        waitpid(pid, &status_a, 0);
     }
 
     if(context.shouldExit()) // important - query flags (and --exit) rely on the user doing this

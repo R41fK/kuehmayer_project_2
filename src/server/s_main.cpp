@@ -1,9 +1,6 @@
 #include <iostream>
 #include <thread>
 #include <asio.hpp>
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
-#include <grpc/support/log.h>
 #include <unistd.h>
 
 #include <CLI11.hpp>
@@ -19,18 +16,10 @@
 #include "server/server_grpc.h"
 
 #include "message.pb.h"
-#include "grpc_message.pb.h"
-#include "grpc_message.grpc.pb.h"
 
 using namespace asio;
 using namespace std;
 
-using grpc::Server;
-using grpc::ServerAsyncResponseWriter;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerCompletionQueue;
-using grpc::Status;
 
 int main(int argc, char* argv[]) {
 
@@ -45,6 +34,8 @@ int main(int argc, char* argv[]) {
     CLI::App app("client");
 
     app.add_option("-p, --port", server_data.port, "port to connect to for asio. Grpc will connect one port above", true);
+
+    app.add_flag("-e, --enable-shutdown", server_data.allow_shutdown, "allows a client to shutdown the server with a request");
 
     auto flag_l{app.add_flag("-l, --log-to-file"
                             , logger_settings.log_to_file
@@ -103,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     logger_settings.config_logger();
 
-    vector<std::thread> thread_pool{};
+    Shutdown_Implementation shutdown{server_data};
 
     try {
 
@@ -124,73 +115,55 @@ int main(int argc, char* argv[]) {
 
         spdlog::info("Started Server!");
 
-        std::thread grpc{[&]() {
-            Shutdown_Implementation service{server_data};
-            grpc::EnableDefaultHealthCheckService(true);
-            
-            string server_address{"[::]:" + server_data.get_grpc_port()};
-
-            
-            grpc::ServerBuilder builder;
-            // Listen on the given address without any authentication mechanism
-            
-            builder.AddListeningPort(ref(server_address), grpc::InsecureServerCredentials());
-            // Register "service" as the instance through which
-            // communication with client takes place
-            builder.RegisterService(&service);
-            // Assembling the server
-            cout << "Server listening on port: " << server_address  << endl;
-            std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-
-            server->Wait();
-        }};
-
         acceptor.listen();
+        std::thread t{[&]() {
 
-        while (true) {
-            
-            ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
-
-            std::thread t{[&]() {
+            while (!shutdown.shutdown_now) {
                 
-                spdlog::info("Client connected to Server");
+                ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
 
-                Object_Storage obst{};
+                std::thread t{[&]() {
+                    
+                    spdlog::info("Client connected to Server");
 
-                while (*strm) {           
+                    Object_Storage obst{};
 
-                    string data{};
+                    while (*strm) {
 
-                    getline(*strm, data);
+                        string data{};
 
-                    if (*strm) {
-                        spdlog::debug(fmt::format("server got message {}", data));
+                        getline(*strm, data);
 
-                        *strm << message_utility::to_ascii(obst.new_action(data));
+                        if (*strm) {
+                            spdlog::debug(fmt::format("server got message {}", data));
+
+                            *strm << message_utility::to_ascii(obst.new_action(data));
+                        }
                     }
-                }
 
-                strm->close();
+                    strm->close();
 
-                delete strm;
+                    delete strm;
 
-                spdlog::info("Client disconnected");
-            }};
+                    spdlog::info("Client disconnected");
+                }};
 
-            thread_pool.push_back(move(t));
-        }
-        grpc.join();
+                t.detach();
+            }
+        }};
+        
+        t.detach();
+
+        shutdown();
+        cout << "grpc closed" << endl;
+        
+        acceptor.close();
 
     } catch (asio::system_error& e) {
         spdlog::error(e.what());
         fmt::print("Exception: {} occured! Server Stopped\n", e.what()); 
     } 
 
-    
-
-    for (std::thread& t : thread_pool) {
-        t.join();
-    }
-
     google::protobuf::ShutdownProtobufLibrary();
+    cout << "finished server" << endl;
 }
