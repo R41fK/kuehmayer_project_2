@@ -6,6 +6,10 @@
 #include <future>
 
 
+#include <fmt/core.h>
+#include <rang.hpp>
+#include <spdlog/spdlog.h>
+
 #include "grpc_message.pb.h"
 #include "grpc_message.grpc.pb.h"
 
@@ -46,25 +50,34 @@ void Shutdown_Implementation::operator()(){
 
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism
-    
-    builder.AddListeningPort(ref(server_address), grpc::InsecureServerCredentials());
-    // Register "service" as the instance through which
-    // communication with client takes place
-    builder.RegisterService(this);
-    // Assembling the server
-    cout << "Server listening on port: " << server_address  << endl;
-    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+    int* success{};
+    builder.AddListeningPort(ref(server_address), grpc::InsecureServerCredentials(), success);
+    if (success != nullptr) {
+        // Register "service" as the instance through which
+        // communication with client takes place
+        builder.RegisterService(this);
+        // Assembling the server
+        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+        if (server != nullptr) {
+        
+            auto wait = async(launch::async, [&](){
+                server->Wait();
+                return;
+            });
 
-    auto wait = async(launch::async, [&](){
-        server->Wait();
-        return;
-    });
+            exit_requested.get_future().wait();
+            
+            server->Shutdown();
 
-    exit_requested.get_future().wait();
-    
-    server->Shutdown();
-
-    wait.wait();
+            wait.wait();
+        } else {
+            fmt::print("Exception: Build of grpc Server failed!\n");
+            spdlog::info("Exception: Build of grpc Server failed!");
+        }
+    } else {
+        fmt::print("Exception: Ports are allready in Use!\n");
+        spdlog::info("Exception: Ports are allready in Use!");
+    }
 
     this->shutdown_now = true;
 }

@@ -102,68 +102,78 @@ int main(int argc, char* argv[]) {
         ip::tcp::endpoint ep{ip::tcp::v4(), server_data.port};
         ip::tcp::acceptor acceptor{ctx, ep};
 
-        cout << endl;
+        std::thread grpc{ref(shutdown)};
 
-        cout << rang::fg::green
-             << rang::style::bold  << "Started Server on port: "
-             << rang::fg::yellow   << server_data.port 
-             << endl
-        ;
+        this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        if (!shutdown.shutdown_now) {
+
+            cout << endl;
+
+            cout << rang::fg::green
+                << rang::style::bold  << "Started Server on port: "
+                << rang::fg::yellow   << server_data.port 
+                << rang::fg::green    << " and grpc on port: "
+                << rang::fg::yellow   << server_data.port + 1
+                << endl
+            ;
 
 
-        logger_settings.print_logger_config();
+            logger_settings.print_logger_config();
 
-        spdlog::info("Started Server!");
+            spdlog::info("Started Server!");
 
-        acceptor.listen();
-        std::thread t{[&]() {
+            acceptor.listen();
+            std::thread t{[&]() {
 
-            while (!shutdown.shutdown_now) {
-                
-                ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
-
-                std::thread t{[&]() {
+                while (!shutdown.shutdown_now) {
                     
-                    spdlog::info("Client connected to Server");
+                    ip::tcp::iostream* strm = new ip::tcp::iostream(acceptor.accept());
 
-                    Object_Storage obst{};
+                    std::thread t{[&]() {
+                        
+                        spdlog::info("Client connected to Server");
 
-                    while (*strm) {
+                        Object_Storage obst{};
 
-                        string data{};
+                        while (*strm) {
 
-                        getline(*strm, data);
+                            string data{};
 
-                        if (*strm) {
-                            spdlog::debug(fmt::format("server got message {}", data));
+                            getline(*strm, data);
 
-                            *strm << message_utility::to_ascii(obst.new_action(data));
+                            if (*strm) {
+                                spdlog::debug(fmt::format("server got message {}", data));
+
+                                *strm << message_utility::to_ascii(obst.new_action(data));
+                            }
                         }
-                    }
 
-                    strm->close();
+                        strm->close();
 
-                    delete strm;
+                        delete strm;
 
-                    spdlog::info("Client disconnected");
-                }};
+                        spdlog::info("Client disconnected");
+                    }};
 
-                t.detach();
-            }
-        }};
-        
-        t.detach();
+                    t.detach();
+                }
+            }};
+            
+            t.detach();
 
-        shutdown();
-        cout << "grpc closed" << endl;
+        }
+
+        grpc.join();
         
         acceptor.close();
 
     } catch (asio::system_error& e) {
         spdlog::error(e.what());
-        fmt::print("Exception: {} occured! Server Stopped\n", e.what()); 
-    } 
+        fmt::print("Exception: {} occured!\n", e.what()); 
+    }
 
     google::protobuf::ShutdownProtobufLibrary();
-    cout << "finished server" << endl;
+    fmt::print("Server closed\n");
+    spdlog::info("Server closed");
 }

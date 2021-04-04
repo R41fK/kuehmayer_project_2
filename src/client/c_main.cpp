@@ -134,25 +134,24 @@ int main(int argc, char* argv[]) {
 
     logger_settings.print_logger_config();
 
-    
-
     std::thread tr{Repl(true, server_data)};
 
     tr.join();
-
-    spdlog::info(fmt::format("Client stoped"));
 
     if (pid != 0) {
         int status_a{};
 
         RPC_Client client{grpc::CreateChannel(server_data.ip + ":" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
-        client.send_shutdown();
+        if (!client.send_shutdown()) {
+            spdlog::info(fmt::format("A Problem occured while shuting down the server."));
+            fmt::print("A Problem occured while shuting down the server.\n");
+            kill(pid, SIGKILL);
+        }
 
-        cout << "waiting" << endl;
         waitpid(pid, &status_a, 0);
     }
 
     google::protobuf::ShutdownProtobufLibrary();
-
-    cout << "finished client" << endl;
+    spdlog::info(fmt::format("Client finished"));
+    fmt::print("client finished\n");
 }
