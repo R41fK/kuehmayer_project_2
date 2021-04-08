@@ -117,18 +117,13 @@ Repl::Repl(bool running, config::Server server_data):
     parser["CALCULATOR"] = [&](const SemanticValues &vs) {
         switch (vs.choice()) {
             case 0: // 'car_calculator' NAME
-                car_calculators.insert_or_assign(any_cast<string>(vs[0]), Car_Calculator());
-                this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
+                this->send_message(Car_Calculator().get_proto_message(any_cast<string>(vs[0]), "", false));
                 break;
 
 
             case 1: // NAME 'car =' NAME
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), any_cast<string>(vs[1])));
-
-                    if (cars.find(any_cast<string>(vs[1])) != cars.end()) {
-                        car_calculators.at(any_cast<string>(vs[0])).set_car(cars.at(any_cast<string>(vs[1])));
-                    }
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), any_cast<string>(vs[1]), false));
                     
                 } else {
                     no_Car_Calculator(any_cast<string>(vs[0]));
@@ -191,11 +186,11 @@ Repl::Repl(bool running, config::Server server_data):
 
             case 8: // NAME 'calculate_leasing'
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), "", false));
 
-                    Message msg{};
+                    Request msg{};
 
-                    msg.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
+                    msg.set_type(Request::MessageType::Request_MessageType_CALC_LEASING);
                     msg.set_name(any_cast<string>(vs[0]));
 
                     this->send_message(msg.SerializeAsString());
@@ -206,11 +201,11 @@ Repl::Repl(bool running, config::Server server_data):
 
             case 9: // NAME 'calculate_insurance'
                 if (car_calculators.find(any_cast<string>(vs[0])) != car_calculators.end()) {
-                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), ""));
+                    this->send_message(car_calculators.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0]), "", false));
 
-                    Message msg{};
+                    Request msg{};
 
-                    msg.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
+                    msg.set_type(Request::MessageType::Request_MessageType_CALC_INSURANCE);
                     msg.set_name(any_cast<string>(vs[0]));
 
                     this->send_message(msg.SerializeAsString());
@@ -293,9 +288,7 @@ Repl::Repl(bool running, config::Server server_data):
         
         switch (vs.choice()) {
             case 0: //'car_builder' NAME 
-                car_builders.insert_or_assign(any_cast<string>(vs[0]), Car_Builder());
-
-                this->send_message(car_builders.at(any_cast<string>(vs[0])).get_proto_message(any_cast<string>(vs[0])));
+                this->send_message(Car_Builder().get_proto_message(any_cast<string>(vs[0]), false));
                 break;
 
 
@@ -355,21 +348,17 @@ Repl::Repl(bool running, config::Server server_data):
 
             case 7: // 'car' NAME '=' NAME 'build'
                 if (car_builders.find(any_cast<string>(vs[1])) != car_builders.end()) {
-                    optional<Car> o_car{car_builders.at(any_cast<string>(vs[1])).build()};
 
-                    this->send_message(car_builders.at(any_cast<string>(vs[1])).get_proto_message(any_cast<string>(vs[1])));
+                    this->send_message(car_builders.at(any_cast<string>(vs[1])).get_proto_message(any_cast<string>(vs[1]), false));
 
-                    Message msg{};
+                    Request msg{};
 
-                    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+                    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
                     msg.set_name(any_cast<string>(vs[0]));
                     msg.set_builder(any_cast<string>(vs[1]));
 
                     this->send_message(msg.SerializeAsString());
 
-                    if (o_car.has_value()) {
-                        cars.insert_or_assign(any_cast<string>(vs[0]), o_car.value());
-                    } 
                 } else {
                     no_Car_Builder(any_cast<string>(vs[0]));
                 }

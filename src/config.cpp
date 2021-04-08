@@ -185,7 +185,7 @@ int config::start_server(bool start_server, Server server_data, Log_Settings log
                         args.push_back((char*)"-d");
                     }
 
-                    args.push_back((char*)"--lock-file");
+                    args.push_back((char*)"--log-file");
                     args.push_back((char*)logger_settings.log_file.c_str());
                 }
 

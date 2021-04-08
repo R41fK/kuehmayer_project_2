@@ -135,7 +135,7 @@ void Repl::send_message(string msg) {
 
         string dec_msg{message_utility::to_ascii(msg)};
 
-        spdlog::debug(fmt::format("Client sends encoded message '{}'", dec_msg));
+        spdlog::debug(fmt::format("Client sends encoded message '{}'", pystring::replace(dec_msg, "\n", "")));
 
         this->messages.push_back(dec_msg);
 
@@ -145,14 +145,16 @@ void Repl::send_message(string msg) {
 
         getline(*strm, data);
 
-        spdlog::debug(fmt::format("Client got message '{}'", data));
+        spdlog::debug(fmt::format("Client got   encoded message '{}'", data));
 
         data = message_utility::from_ascii(data);
 
         spdlog::debug(fmt::format("Client decoded message '{}'", data));
 
+        data = pystring::lstrip(data);
+
         if (data != "ok" && data != "") {
-            fmt::print(fg(fmt::color::alice_blue), "{}\n", data);
+            parse_message(data);
         }
         
     } else {
@@ -243,5 +245,89 @@ void Repl::operator()() {
         } else {
             parser.parse(input.c_str());
         }
+    }
+}
+
+
+void Repl::parse_message(string message) {
+    Reply msg{};
+
+
+    if (msg.ParseFromString(message)) {
+
+        spdlog::debug("Message could be Parsed to Proto object");
+
+        switch (msg.type()) {
+
+            case Reply::MessageType::Reply_MessageType_BUILDER:
+
+                if (car_builders.find(msg.text()) != car_builders.end()) {
+                    spdlog::info(fmt::format("Builder {} existsts and will be updated", msg.text()));
+                    car_builders.at(msg.text()).update_car_builder_from_proto_message(msg.car());
+                } else {
+                    spdlog::info(fmt::format("Builder {} does not existst and will be created", msg.text()));
+                    Car_Builder build{};
+                    build.update_car_builder_from_proto_message(msg.car());
+                    car_builders.insert_or_assign(msg.text(), build);
+                }
+
+                break;
+
+            case Reply::MessageType::Reply_MessageType_CALCULATOR:
+
+                if (car_calculators.find(msg.text()) != car_calculators.end()) {
+                    car_calculators.at(msg.text()).update_car_calculator_from_proto_message(msg.calculator());
+                     spdlog::info(fmt::format("Calculator {} existsts and will be updated", msg.text()));
+                } else {
+                    Car_Calculator calc{};
+                    calc.update_car_calculator_from_proto_message(msg.calculator());
+                    car_calculators.insert_or_assign(msg.text(), calc); 
+                    spdlog::info(fmt::format("Calculator {} does not existst and will be created", msg.text()));  
+                }
+
+                if (msg.calculator().car() != "") {
+                    if (cars.find(msg.text()) != cars.end()) {
+                        car_calculators.at(msg.text()).set_car(cars.at(msg.text()));
+                    }
+                } 
+
+                break;
+
+            case Reply::MessageType::Reply_MessageType_CAR:
+
+                if (cars.find(msg.text()) != cars.end()) {
+                    cars.at(msg.text()).update_car_from_proto_message(msg.car());
+                    spdlog::info(
+                        fmt::format("Car {} existsts and will be updated" , msg.text())
+                    );
+                } else {    
+                    cars.insert_or_assign(msg.text(), Car(msg.car()));
+                    spdlog::info(
+                            fmt::format("Car {} does not exist and will be created"
+                                        , msg.text()
+                            )
+                        );
+                }
+
+                break;
+
+            case Reply::MessageType::Reply_MessageType_DOUBLE:
+                fmt::print(fg(fmt::color::alice_blue), fmt::format("{} {:.2f}\n", msg.text(), msg.value()));
+
+                break;
+
+            case Reply::MessageType::Reply_MessageType_ERROR:
+                fmt::print(fg(fmt::color::orange), fmt::format("{}\n", msg.text()));
+
+                break;
+
+            default:
+                cout << "????" << endl;
+
+                break;
+        }
+
+    } else {
+        fmt::print(fg(fmt::color::red), "Couldn't parse Message from the Server\n");
     }
 }

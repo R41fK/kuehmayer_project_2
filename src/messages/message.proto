@@ -3,14 +3,15 @@ syntax = "proto3";
 import "car.proto";
 import "calculator.proto";
 
-message Message {
+message Request {
 
     enum MessageType {
-        BUILDER = 0;
-        CALCULATOR = 1;
-        BUILD = 2;
-        CALC_LEASING = 3;
-        CALC_INSURANCE = 4;
+        NONE = 0;
+        BUILDER = 1;
+        CALCULATOR = 2;
+        BUILD = 3;
+        CALC_LEASING = 4;
+        CALC_INSURANCE = 5;
     }
 
 
@@ -23,4 +24,26 @@ message Message {
 
     string name = 4;
     string builder = 5;
+}
+
+message Reply {
+
+    enum MessageType {
+        NONE = 0;
+        BUILDER = 1;
+        CALCULATOR = 2;
+        CAR = 3;
+        DOUBLE = 4;
+        ERROR = 5;
+    }
+
+    MessageType type = 1;
+    
+    oneof message {
+        Message_Car car = 2;
+        Message_Car_Calculator calculator = 3;
+    }
+
+    string text = 4;
+    double value = 5;
 }

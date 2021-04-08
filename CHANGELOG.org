@@ -1,5 +1,32 @@
 * Changelog
 ** [Unreleased]
+*** Updated
+- Adding output to the server
+- Changing the creation og objects for the client. 
+- Now it gets them from the server.
+- include/client/repl.h
+- include/server/object_storage.h
+- include/server/server_grpc.h
+- include/car_builder.h
+- include/car_calculator.h
+- include/car.h
+- integration_tests/repl_int_tests.cpp
+- src/client/repl_construcor.cpp
+- src/client/repl_functions.cpp
+- src/messages/message.proto
+- src/server/object_storage.cpp
+- src/server/server_grpc.cpp
+- src/car_builder.cpp
+- src/car_calculator.cpp
+- src/car.cpp
+
+** [0.0.9] - 2021-04-05
+*** Updated
+- implementing to allow the server to be shutdown by the client
+- src/client/client_grpc.cpp
+- src/messages/grpc_message.proto
+- src/server/object_storage.cpp
+- src/server/server_grpc.cpp
 
 ** [0.0.8] - 2021-03-29
 *** Added
@@ -7,7 +34,7 @@
 - include/client/client_grpc.h
 - include/server/server_grpc.h
 - src/client/client_grpc.cpp
-- messages/grpc_message.proto
+- src/messages/grpc_message.proto
 - src/server/server_grpc.cpp
 *** Updated
 - changes for the implementation of grpc
@@ -18,7 +45,7 @@
 - src/client/c_main.cpp
 - src/client/repl_construcor.cpp
 - src/server/s_main.cpp
--src/config.cpp
+- src/config.cpp
 
 ** [0.0.7] - 2021-03-22
 *** Updated

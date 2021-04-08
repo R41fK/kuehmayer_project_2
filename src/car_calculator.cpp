@@ -103,7 +103,7 @@ string Car_Calculator::to_string() {
 }
 
 
-string Car_Calculator::get_proto_message(string name, string car) {
+string Car_Calculator::get_proto_message(string name, string car, bool reply) {
 
     Message_Car_Calculator* msg_calculator = new Message_Car_Calculator();
 
@@ -121,15 +121,27 @@ string Car_Calculator::get_proto_message(string name, string car) {
 
     msg_calculator->set_car(car);
 
-    Message msg{};
+    if (reply) {
+        Reply msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_CALCULATOR);
+        msg.set_type(Reply::MessageType::Reply_MessageType_CALCULATOR);
 
-    msg.set_name(name);
+        msg.set_text(name);
 
-    msg.set_allocated_calculator(msg_calculator);
+        msg.set_allocated_calculator(msg_calculator);
 
-    return msg.SerializeAsString();
+        return msg.SerializeAsString();
+    } else {
+        Request msg{};
+
+        msg.set_type(Request::MessageType::Request_MessageType_CALCULATOR);
+
+        msg.set_name(name);
+
+        msg.set_allocated_calculator(msg_calculator);
+
+        return msg.SerializeAsString();
+    }
 }
 
 

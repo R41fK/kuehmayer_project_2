@@ -41,7 +41,7 @@ TEST_CASE("Repl send message sync Builder") {
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl.strm)};
+    string data{send_message(builder.get_proto_message("test", false), repl.strm)};
     CHECK(data == "ok");
 
     repl.strm->close();
@@ -58,13 +58,13 @@ TEST_CASE("Repl send message build Car") {
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl.strm)};
+    string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message msg{};
+    Request msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
     msg.set_name("car");
     msg.set_builder("test");
 
@@ -89,7 +89,7 @@ TEST_CASE("Repl send message sync Car_Calculator") {
     calc.is_under_24();
     calc.set_deposit(7000);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
+    string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
     CHECK(data == "ok");
 
@@ -108,13 +108,13 @@ TEST_CASE("Repl send message calculate insurance") {
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl.strm)};
+    string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message msg{};
+    Request msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
     msg.set_name("car");
     msg.set_builder("test");
 
@@ -130,13 +130,13 @@ TEST_CASE("Repl send message calculate insurance") {
 
     REQUIRE(*repl.strm);
 
-    data = send_message(calc1.get_proto_message("calc1", "car"), repl.strm);
+    data = send_message(calc1.get_proto_message("calc1", "car", false), repl.strm);
 
     REQUIRE(data == "ok");
 
-    Message ms{};
+    Request ms{};
 
-    ms.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
+    ms.set_type(Request::MessageType::Request_MessageType_CALC_INSURANCE);
     ms.set_name("calc1");
 
     REQUIRE(*repl.strm);
@@ -165,13 +165,13 @@ TEST_CASE("Repl send message calculate leasing") {
     Car_Builder builder{};
     builder.ps(60)->purchase_value(16000);
 
-    string data{send_message(builder.get_proto_message("test"), repl.strm)};
+    string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message msg{};
+    Request msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
     msg.set_name("car");
     msg.set_builder("test");
 
@@ -188,13 +188,13 @@ TEST_CASE("Repl send message calculate leasing") {
 
     REQUIRE(*repl.strm);
 
-    data = send_message(calc.get_proto_message("calc", "car"), repl.strm);
+    data = send_message(calc.get_proto_message("calc", "car", false), repl.strm);
 
     REQUIRE(data == "ok");
 
-    Message ms{};
+    Request ms{};
 
-    ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
+    ms.set_type(Request::MessageType::Request_MessageType_CALC_LEASING);
     ms.set_name("calc");
     
     REQUIRE(*repl.strm);
@@ -220,9 +220,9 @@ TEST_CASE("Repl send message calculate leasing calculator not found") {
     config::Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
-    Message ms{};
+    Request ms{};
 
-    ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
+    ms.set_type(Request::MessageType::Request_MessageType_CALC_LEASING);
     ms.set_name("calc");
 
     REQUIRE(*repl.strm);
@@ -248,13 +248,13 @@ TEST_CASE("Repl send message calculate insurance failed") {
 
     REQUIRE(*repl.strm);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
+    string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message ms{};
+    Request ms{};
 
-    ms.set_type(Message::MessageType::Message_MessageType_CALC_INSURANCE);
+    ms.set_type(Request::MessageType::Request_MessageType_CALC_INSURANCE);
     ms.set_name("calc");
 
     REQUIRE(*repl.strm);
@@ -279,13 +279,13 @@ TEST_CASE("Repl send message calculate leasing failed") {
 
     REQUIRE(*repl.strm);
 
-    string data{send_message(calc.get_proto_message("calc", ""), repl.strm)};
+    string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message ms{};
+    Request ms{};
 
-    ms.set_type(Message::MessageType::Message_MessageType_CALC_LEASING);
+    ms.set_type(Request::MessageType::Request_MessageType_CALC_LEASING);
     ms.set_name("calc");
 
     REQUIRE(*repl.strm);
@@ -303,9 +303,9 @@ TEST_CASE("Repl send message build Car no Builder") {
     config::Server server_data{};
     repl.strm = new asio::ip::tcp::iostream{server_data.ip, server_data.get_port_as_string()};
 
-    Message msg{};
+    Request msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
     msg.set_name("car");
     msg.set_builder("test");
 
@@ -330,13 +330,13 @@ TEST_CASE("Repl send message build Car. Builder failed") {
 
     REQUIRE(*repl.strm);
 
-    string data{send_message(builder.get_proto_message("test"), repl.strm)};
+    string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
     REQUIRE(data == "ok");
 
-    Message msg{};
+    Request msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILD);
+    msg.set_type(Request::MessageType::Request_MessageType_BUILD);
     msg.set_name("car");
     msg.set_builder("test");
 
@@ -362,7 +362,7 @@ TEST_CASE("Repl sync calculator, no car found") {
 
     REQUIRE(*repl.strm);
 
-    string data{send_message(calc.get_proto_message("calc", "car"), repl.strm)};
+    string data{send_message(calc.get_proto_message("calc", "car", false), repl.strm)};
 
     CHECK(data == "Car car does not exist");
 

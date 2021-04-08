@@ -101,6 +101,8 @@ private:
 
     void send_message(std::string);
 
+    void parse_message(std::string);
+
 public:
 
     Repl(bool, config::Server);

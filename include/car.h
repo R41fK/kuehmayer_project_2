@@ -70,4 +70,7 @@ public:
     bool operator==(const Car) const;
 
     Car(Message_Car);
+
+    void update_car_from_proto_message(Message_Car);
+    std::string get_proto_message(std::string);
 };

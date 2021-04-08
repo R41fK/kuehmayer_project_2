@@ -28,36 +28,37 @@ string Object_Storage::new_action(string data) {
 
     //cout << data << endl;
 
-    Message msg{};
+    Request msg{};
 
     if (msg.ParseFromString(data)) {
-        spdlog::info(fmt::format("Message could be Parsed to Proto objekt"));
+        spdlog::debug(fmt::format("Message could be Parsed to Proto object"));
 
         switch (msg.type()) {
-            case Message::MessageType::Message_MessageType_BUILDER:
+            case Request::MessageType::Request_MessageType_BUILDER:
                 spdlog::debug(fmt::format("Message is MessageType Builder"));
 
                 if (this->car_builders.find(msg.name()) != this->car_builders.end()) {
-                    spdlog::debug(fmt::format("Builder {} existsts and will be updated", msg.name()));
+                    spdlog::info(fmt::format("Builder {} existsts and will be updated", msg.name()));
                     print(fmt::format("Builder {} existsts and will be updated", msg.name()), fmt::color::medium_sea_green);
 
                     this->car_builders.at(msg.name()).update_car_builder_from_proto_message(msg.car());
                 } else {
-                    spdlog::debug(fmt::format("Builder {} does not existst and will be created", msg.name()));
+                    spdlog::info(fmt::format("Builder {} does not existst and will be created", msg.name()));
                     print(fmt::format("Builder {} does not existst and will be created", msg.name()), fmt::color::medium_sea_green);
 
                     Car_Builder builder{};
                     builder.update_car_builder_from_proto_message(msg.car());
                     this->car_builders.insert_or_assign(msg.name(), builder);
                 }
-                break;
 
-            case Message::MessageType::Message_MessageType_BUILD:
+                return this->car_builders.at(msg.name()).get_proto_message(msg.name(), true);
+
+            case Request::MessageType::Request_MessageType_BUILD:
                 spdlog::debug(fmt::format("Message is MessageType Build"));
 
                 if (this->car_builders.find(msg.builder()) != this->car_builders.end()) {
                     if (this->cars.find(msg.name()) != this->cars.end()) {
-                        spdlog::debug(
+                        spdlog::info(
                             fmt::format("Car {} existsts and will be updated with Builder {}"
                                         , msg.name()
                                         , msg.builder())
@@ -72,6 +73,8 @@ string Object_Storage::new_action(string data) {
                         optional<Car> o_car{this->car_builders.at(msg.builder()).build()};
                         if (o_car.has_value()) {
                             this->cars.at(msg.name()) = o_car.value();
+
+                            return this->cars.at(msg.name()).get_proto_message(msg.name());
                         } else {
                             spdlog::info(
                                 fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
@@ -83,12 +86,17 @@ string Object_Storage::new_action(string data) {
                                             , msg.name())
                             , fmt::color::orange);
 
-                             return fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
-                                            , msg.name()
-                                    );
+
+                            Reply reply{};
+
+                            reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                            reply.set_text(fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
+                                            , msg.name()));
+
+                            return reply.SerializeAsString();
                         }
                     } else {
-                        spdlog::debug(
+                        spdlog::info(
                             fmt::format("Car {} does not exist and will be created with Builder {}"
                                         , msg.name()
                                         , msg.builder()
@@ -103,6 +111,8 @@ string Object_Storage::new_action(string data) {
                         optional<Car> o_car{this->car_builders.at(msg.builder()).build()};
                         if (o_car.has_value()) {
                             this->cars.insert_or_assign(msg.name(), o_car.value());
+
+                            return this->cars.at(msg.name()).get_proto_message(msg.name());
                         } else {
                             spdlog::info(
                                 fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
@@ -114,9 +124,14 @@ string Object_Storage::new_action(string data) {
                                             , msg.builder())
                             , fmt::color::orange);
 
-                             return fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
-                                            , msg.builder()
-                                    );
+
+                            Reply reply{};
+
+                            reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                            reply.set_text(fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
+                                            , msg.builder()));
+
+                            return reply.SerializeAsString();
                         }
                     }
                 } else {
@@ -130,22 +145,34 @@ string Object_Storage::new_action(string data) {
                                         , msg.builder())
                             , fmt::color::orange);
 
-                        return fmt::format("Builder {} does not exist", msg.builder());
+
+                        Reply reply{};
+
+                        reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                        reply.set_text(fmt::format("Builder {} does not exist", msg.builder()));
+
+                        return reply.SerializeAsString();
                     }
                 break;
 
-            case Message::MessageType::Message_MessageType_CALC_INSURANCE:
+            case Request::MessageType::Request_MessageType_CALC_INSURANCE:
                 spdlog::debug(fmt::format("Message is MessageType calc insurance"));
 
                 if (this->car_calculators.find(msg.name()) != this->car_calculators.end()) {
                     optional<double> ob_ins{this->car_calculators.at(msg.name()).calculate_insurance_rate()};
                     if (ob_ins.has_value()) {
-                        spdlog::debug(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value()));
+                        spdlog::info(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value()));
 
                         print(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value())
                             , fmt::color::medium_sea_green);
 
-                        return fmt::format("Insurance rate: {}", ob_ins.value());
+                        Reply reply{};
+
+                        reply.set_type(Reply::MessageType::Reply_MessageType_DOUBLE);
+                        reply.set_value(ob_ins.value());
+                        reply.set_text("Insurance rate:");
+
+                        return reply.SerializeAsString();
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
                             , msg.name(), "Not all key components (car & insurance_class) were set!")
@@ -157,8 +184,13 @@ string Object_Storage::new_action(string data) {
 
                         spdlog::debug(this->car_calculators.at(msg.name()).to_string());
 
-                        return fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
-                            , msg.name(), "Not all key components (car & insurance_class) were set!");
+                        Reply reply{};
+
+                        reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                        reply.set_text(fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
+                            , msg.name(), "Not all key components (car & insurance_class) were set!"));
+
+                        return reply.SerializeAsString();
                     }
                 } else {
                     spdlog::info(fmt::format("Car_Calculator {} does not exist", msg.name()));
@@ -166,22 +198,33 @@ string Object_Storage::new_action(string data) {
                     print(fmt::format("Car_Calculator {} does not exist", msg.name())
                             , fmt::color::orange);
 
-                    return fmt::format("Car_Calculator {} does not exist", msg.name());
+                    Reply reply{};
+
+                    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                    reply.set_text(fmt::format("Car_Calculator {} does not exist", msg.name()));
+
+                    return reply.SerializeAsString();
                 }
                 break;
 
-            case Message::MessageType::Message_MessageType_CALC_LEASING:
+            case Request::MessageType::Request_MessageType_CALC_LEASING:
                 spdlog::debug(fmt::format("Message is MessageType calc leasing"));
 
                 if (this->car_calculators.find(msg.name()) != this->car_calculators.end()) {
                      optional<double> ob_lea{this->car_calculators.at(msg.name()).calculate_leasing_rate()};
                     if (ob_lea.has_value()) {
-                        spdlog::debug(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value()));
+                        spdlog::info(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value()));
 
                         print(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value())
                             , fmt::color::medium_sea_green);
 
-                        return fmt::format("Leasing rate: {}", ob_lea.value());
+                        Reply reply{};
+
+                        reply.set_type(Reply::MessageType::Reply_MessageType_DOUBLE);
+                        reply.set_value(ob_lea.value());
+                        reply.set_text("Leasing rate:");
+
+                        return reply.SerializeAsString();
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
                             , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!")
@@ -193,8 +236,14 @@ string Object_Storage::new_action(string data) {
 
                         spdlog::debug(this->car_calculators.at(msg.name()).to_string());
 
-                        return fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
-                            , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!");
+
+                        Reply reply{};
+
+                        reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                        reply.set_text(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
+                            , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!"));
+
+                        return reply.SerializeAsString();
                     }
                 } else {
                     spdlog::info(fmt::format("Car_Calculator {} does not exist", msg.name()));
@@ -202,15 +251,20 @@ string Object_Storage::new_action(string data) {
                     print(fmt::format("Car_Calculator {} does not exist", msg.name())
                             , fmt::color::orange);
 
-                    return fmt::format("Car_Calculator {} does not exist", msg.name());
+                    Reply reply{};
+
+                    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                    reply.set_text(fmt::format("Car_Calculator {} does not exist", msg.name()));
+
+                    return reply.SerializeAsString();
                 }
                 break;
 
-            case Message::MessageType::Message_MessageType_CALCULATOR:
+            case Request::MessageType::Request_MessageType_CALCULATOR:
                 spdlog::debug(fmt::format("Message is MessageType calculator"));
 
                 if (this->car_calculators.find(msg.name()) != this->car_calculators.end()) {
-                    spdlog::debug(fmt::format("Calculator {} existsts and will be updated", msg.name()));
+                    spdlog::info(fmt::format("Calculator {} existsts and will be updated", msg.name()));
 
                     print(fmt::format("Calculator {} existsts and will be updated", msg.name())
                             , fmt::color::medium_sea_green);
@@ -221,18 +275,27 @@ string Object_Storage::new_action(string data) {
                         if (this->cars.find(msg.calculator().car()) != this->cars.end()) {
 
                             this->car_calculators.at(msg.name()).set_car(this->cars.at(msg.calculator().car()));
+
+                            return this->car_calculators.at(msg.name()).get_proto_message(msg.name(), msg.calculator().car(), true);
                         } else {
                             spdlog::info(fmt::format("Car {} does not exist", msg.calculator().car()));
 
                             print(fmt::format("Car {} does not exist", msg.calculator().car())
                             , fmt::color::orange);
 
-                            return fmt::format("Car {} does not exist", msg.calculator().car());
+                            Reply reply{};
+
+                            reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                            reply.set_text(fmt::format("Car {} does not exist", msg.calculator().car()));
+
+                            return reply.SerializeAsString();
                         }
-                    }                    
+                    } else {
+                        return this->car_calculators.at(msg.name()).get_proto_message(msg.name(), "", true);
+                    }              
 
                 } else {
-                    spdlog::debug(fmt::format("Calculator {} does not existst and will be created", msg.name()));
+                    spdlog::info(fmt::format("Calculator {} does not existst and will be created", msg.name()));
 
                     print(fmt::format("Calculator {} does not existst and will be created", msg.name())
                             , fmt::color::medium_sea_green);
@@ -246,29 +309,49 @@ string Object_Storage::new_action(string data) {
                         if (this->cars.find(msg.calculator().car()) != this->cars.end()) {
 
                             this->car_calculators.at(msg.name()).set_car(this->cars.at(msg.calculator().car()));
+
+                            return this->car_calculators.at(msg.name()).get_proto_message(msg.name(), msg.calculator().car(), true);
                         } else {
                             spdlog::info(fmt::format("Car {} does not exist", msg.calculator().car()));
 
                             print(fmt::format("Car {} does not exist", msg.calculator().car())
                             , fmt::color::orange);
 
-                            return fmt::format("Car {} does not exist", msg.calculator().car());
+                            Reply reply{};
+
+                            reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                            reply.set_text(fmt::format("Car {} does not exist", msg.calculator().car()));
+
+                            return reply.SerializeAsString();
                         }
+                    } else {
+                        return this->car_calculators.at(msg.name()).get_proto_message(msg.name(), "", true);
                     }
                 }
                 break;
 
             default:
-                spdlog::debug(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name()));
+                spdlog::info(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name()));
 
                 print(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name())
                             , fmt::color::orange);
 
-                return "ok";
+                Reply msg{};
+
+                msg.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+                msg.set_text("Message doesn't match any MessageType!");
+
+                return msg.SerializeAsString();
         }
     } else {
         spdlog::info(fmt::format("Message could not be Parsed to Proto objekt. Message = '{}'", data));
-        return "parse error";
+        Reply msg{};
+
+        msg.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+        msg.set_text("parse error");
+
+        return msg.SerializeAsString();
+
     }
 
     return "ok";

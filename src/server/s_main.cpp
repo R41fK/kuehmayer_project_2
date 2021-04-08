@@ -6,6 +6,7 @@
 #include <CLI11.hpp>
 #include <fmt/core.h>
 #include <json.hpp>
+#include "pystring.h"
 #include <rang.hpp>
 #include <spdlog/spdlog.h>
 #include <toml.hpp>
@@ -146,9 +147,17 @@ int main(int argc, char* argv[]) {
                             getline(*strm, data);
 
                             if (*strm) {
-                                spdlog::debug(fmt::format("server got message {}", data));
+                                spdlog::debug(fmt::format("server got   encoded message '{}'", data));
 
-                                *strm << message_utility::to_ascii(obst.new_action(data));
+                                data = obst.new_action(data);
+
+                                spdlog::debug(fmt::format("server encodes message '{}'", data));
+
+                                data = message_utility::to_ascii(data);
+
+                                spdlog::debug(fmt::format("server sends encoded message '{}'", pystring::replace(data, "\n", "")));
+
+                                *strm << data;
                             }
                         }
 

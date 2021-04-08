@@ -100,7 +100,7 @@ std::string Car_Builder::to_string() {
 }
 
 
-std::string Car_Builder::get_proto_message(std::string name) {
+std::string Car_Builder::get_proto_message(std::string name, bool reply) {
     Message_Car* msg_builder = new Message_Car();
 
     msg_builder->set_driven_kilometers(this->_driven_kilometers);
@@ -192,15 +192,27 @@ std::string Car_Builder::get_proto_message(std::string name) {
             msg_builder->set_fuel_type(Message_Fuel_Type::FUEL_NONE);
     }
 
-    Message msg{};
+    if (reply) {
+        Reply msg{};
 
-    msg.set_type(Message::MessageType::Message_MessageType_BUILDER);
+        msg.set_type(Reply::MessageType::Reply_MessageType_BUILDER);
 
-    msg.set_name(name);
+        msg.set_text(name);
 
-    msg.set_allocated_car(msg_builder);
+        msg.set_allocated_car(msg_builder);
 
-    return msg.SerializeAsString();
+        return msg.SerializeAsString();
+    } else {
+        Request msg{};
+
+        msg.set_type(Request::MessageType::Request_MessageType_BUILDER);
+
+        msg.set_name(name);
+
+        msg.set_allocated_car(msg_builder);
+
+        return msg.SerializeAsString();
+    }
 }
 
 void Car_Builder::update_car_builder_from_proto_message(Message_Car msg) {
