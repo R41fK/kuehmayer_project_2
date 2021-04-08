@@ -7,6 +7,7 @@
 
 
 #include <fmt/core.h>
+#include <fmt/color.h>
 #include <rang.hpp>
 #include <spdlog/spdlog.h>
 
@@ -27,17 +28,25 @@ using shutdown_message::ShutdownReply;
 
 using namespace std;
 
+void Shutdown_Implementation::print(string output, fmt::color color) {
+    if (this->allow_print) {
+        fmt::print(fg(color), output + "\n");
+    }
+}
+
+
 Status Shutdown_Implementation::shutdown(ServerContext*, const ShutdownRequest*, ShutdownReply* reply) {
+
     if (!this->server_data.allow_shutdown) {
+        print("Client attempted to shutdown the server, he is not allowed", fmt::color::orange);
         reply->set_allowed_to_shutdown(false);
         return Status::OK;
     }
 
     this->imediate = true;
-    exit_requested.set_value();
-        //quick_exit(0);
-
     reply->set_allowed_to_shutdown(true);
+    print("Client shutdown the server", fmt::color::orange);
+    exit_requested.set_value();
 
     return Status::OK;    
 }

@@ -37,6 +37,7 @@ void Repl::show_help() {
     end | stop | exit                               stops the programm
     ls | show | show all                            shows alle objectnames
     file                                            run a skript with command
+    shutdown                                        closes the client and if allowed, the server
 
     car_calculator <calculator_name>                creates a car_calculator with the name <calculator_name>
     <calculator_name> show car_calculator           shows the car_calculator object for the object with the name <calculator_name>
@@ -211,6 +212,7 @@ void Repl::send_message(string msg) {
 
 
 void Repl::stop() {
+    fmt::print(fg(fmt::color::orange), "Stoped\n");
     this->running = false;
     strm->close();
     spdlog::info(fmt::format("User send stop signal"));

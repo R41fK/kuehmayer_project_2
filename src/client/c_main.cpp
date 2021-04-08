@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         RPC_Client client{grpc::CreateChannel(server_data.ip + ":" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
         if (!client.send_shutdown()) {
             spdlog::info(fmt::format("A Problem occured while shuting down the server."));
-            fmt::print("A Problem occured while shuting down the server.\n");
+            fmt::print("Server doesn't allow to be stopped or is allready shut down!\n");
             kill(pid, SIGKILL);
         }
 

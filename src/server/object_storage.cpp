@@ -4,6 +4,7 @@
 #include "pystring.h"
 #include <spdlog/spdlog.h>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 #include "message.pb.h"
 
@@ -11,6 +12,12 @@
 #include "server/object_storage.h"
 
 using namespace std;
+
+void Object_Storage::print(string output, fmt::color color) {
+    if (this->allow_print) {
+        fmt::print(fg(color), output + "\n");
+    }
+}
 
 
 string Object_Storage::new_action(string data) {
@@ -32,10 +39,12 @@ string Object_Storage::new_action(string data) {
 
                 if (this->car_builders.find(msg.name()) != this->car_builders.end()) {
                     spdlog::debug(fmt::format("Builder {} existsts and will be updated", msg.name()));
+                    print(fmt::format("Builder {} existsts and will be updated", msg.name()), fmt::color::medium_sea_green);
 
                     this->car_builders.at(msg.name()).update_car_builder_from_proto_message(msg.car());
                 } else {
                     spdlog::debug(fmt::format("Builder {} does not existst and will be created", msg.name()));
+                    print(fmt::format("Builder {} does not existst and will be created", msg.name()), fmt::color::medium_sea_green);
 
                     Car_Builder builder{};
                     builder.update_car_builder_from_proto_message(msg.car());
@@ -54,6 +63,11 @@ string Object_Storage::new_action(string data) {
                                         , msg.builder())
                         );
 
+                        print(fmt::format("Car {} existsts and will be updated with Builder {}"
+                                        , msg.name()
+                                        , msg.builder())
+                            , fmt::color::medium_sea_green);
+
 
                         optional<Car> o_car{this->car_builders.at(msg.builder()).build()};
                         if (o_car.has_value()) {
@@ -64,6 +78,10 @@ string Object_Storage::new_action(string data) {
                                             , msg.name()
                                 )
                             );
+
+                            print(fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
+                                            , msg.name())
+                            , fmt::color::orange);
 
                              return fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
                                             , msg.name()
@@ -77,6 +95,11 @@ string Object_Storage::new_action(string data) {
                             )
                         );
 
+                        print(fmt::format("Car {} does not exist and will be created with Builder {}"
+                                        , msg.name()
+                                        , msg.builder())
+                            , fmt::color::medium_sea_green);
+
                         optional<Car> o_car{this->car_builders.at(msg.builder()).build()};
                         if (o_car.has_value()) {
                             this->cars.insert_or_assign(msg.name(), o_car.value());
@@ -86,6 +109,10 @@ string Object_Storage::new_action(string data) {
                                             , msg.builder()
                                 )
                             );
+
+                            print(fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
+                                            , msg.builder())
+                            , fmt::color::orange);
 
                              return fmt::format("Builder {} failed building. Not all key components (ps & purchase_value) were set!"
                                             , msg.builder()
@@ -99,6 +126,10 @@ string Object_Storage::new_action(string data) {
                             )
                         );
 
+                        print(fmt::format("Builder {} does not exist"
+                                        , msg.builder())
+                            , fmt::color::orange);
+
                         return fmt::format("Builder {} does not exist", msg.builder());
                     }
                 break;
@@ -111,11 +142,18 @@ string Object_Storage::new_action(string data) {
                     if (ob_ins.has_value()) {
                         spdlog::debug(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value()));
 
+                        print(fmt::format("Car_Calculator {} calculated a insurance rate of {}", msg.name(), ob_ins.value())
+                            , fmt::color::medium_sea_green);
+
                         return fmt::format("Insurance rate: {}", ob_ins.value());
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
                             , msg.name(), "Not all key components (car & insurance_class) were set!")
                         );
+
+                        print(fmt::format("Car_Calculator {} failed calculating the insurance rate. {}" 
+                                , msg.name(), "Not all key components (car & insurance_class) were set!")
+                            , fmt::color::orange);
 
                         spdlog::debug(this->car_calculators.at(msg.name()).to_string());
 
@@ -124,6 +162,9 @@ string Object_Storage::new_action(string data) {
                     }
                 } else {
                     spdlog::info(fmt::format("Car_Calculator {} does not exist", msg.name()));
+
+                    print(fmt::format("Car_Calculator {} does not exist", msg.name())
+                            , fmt::color::orange);
 
                     return fmt::format("Car_Calculator {} does not exist", msg.name());
                 }
@@ -137,11 +178,18 @@ string Object_Storage::new_action(string data) {
                     if (ob_lea.has_value()) {
                         spdlog::debug(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value()));
 
+                        print(fmt::format("Car_Calculator {} calculated a leasing rate of {}", msg.name(), ob_lea.value())
+                            , fmt::color::medium_sea_green);
+
                         return fmt::format("Leasing rate: {}", ob_lea.value());
                     } else {
                         spdlog::info(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
                             , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!")
                         );
+
+                        print(fmt::format("Car_Calculator {} failed calculating the leasing rate. {}" 
+                                , msg.name(), "Not all key components (car, rest_value, leasing_duration & deposite) were set!")
+                            , fmt::color::orange);
 
                         spdlog::debug(this->car_calculators.at(msg.name()).to_string());
 
@@ -150,6 +198,9 @@ string Object_Storage::new_action(string data) {
                     }
                 } else {
                     spdlog::info(fmt::format("Car_Calculator {} does not exist", msg.name()));
+
+                    print(fmt::format("Car_Calculator {} does not exist", msg.name())
+                            , fmt::color::orange);
 
                     return fmt::format("Car_Calculator {} does not exist", msg.name());
                 }
@@ -161,6 +212,9 @@ string Object_Storage::new_action(string data) {
                 if (this->car_calculators.find(msg.name()) != this->car_calculators.end()) {
                     spdlog::debug(fmt::format("Calculator {} existsts and will be updated", msg.name()));
 
+                    print(fmt::format("Calculator {} existsts and will be updated", msg.name())
+                            , fmt::color::medium_sea_green);
+
                     this->car_calculators.at(msg.name()).update_car_calculator_from_proto_message(msg.calculator());
 
                     if (msg.calculator().car() != "") {
@@ -170,12 +224,18 @@ string Object_Storage::new_action(string data) {
                         } else {
                             spdlog::info(fmt::format("Car {} does not exist", msg.calculator().car()));
 
+                            print(fmt::format("Car {} does not exist", msg.calculator().car())
+                            , fmt::color::orange);
+
                             return fmt::format("Car {} does not exist", msg.calculator().car());
                         }
                     }                    
 
                 } else {
                     spdlog::debug(fmt::format("Calculator {} does not existst and will be created", msg.name()));
+
+                    print(fmt::format("Calculator {} does not existst and will be created", msg.name())
+                            , fmt::color::medium_sea_green);
                     
                     Car_Calculator calc{};
                     calc.update_car_calculator_from_proto_message(msg.calculator());
@@ -189,6 +249,9 @@ string Object_Storage::new_action(string data) {
                         } else {
                             spdlog::info(fmt::format("Car {} does not exist", msg.calculator().car()));
 
+                            print(fmt::format("Car {} does not exist", msg.calculator().car())
+                            , fmt::color::orange);
+
                             return fmt::format("Car {} does not exist", msg.calculator().car());
                         }
                     }
@@ -197,11 +260,15 @@ string Object_Storage::new_action(string data) {
 
             default:
                 spdlog::debug(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name()));
+
+                print(fmt::format("Message doesn't match any MessageType. Message = '{}'", msg.name())
+                            , fmt::color::orange);
+
                 return "ok";
         }
     } else {
         spdlog::info(fmt::format("Message could not be Parsed to Proto objekt. Message = '{}'", data));
-        return "pars error";
+        return "parse error";
     }
 
     return "ok";

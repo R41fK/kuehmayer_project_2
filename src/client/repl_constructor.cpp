@@ -9,6 +9,7 @@ using namespace nlohmann;
 #include <bitset>
 #include <asio.hpp>
 #include <thread>
+#include <grpc/grpc.h>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -24,6 +25,7 @@ using namespace nlohmann;
 #include "car.h"
 #include "car_builder.h"
 #include "car_calculator.h"
+#include "client/client_grpc.h"
 
 
 using namespace std;
@@ -54,7 +56,14 @@ Repl::Repl(bool running, config::Server server_data):
 
     parser["END"] = [this](const SemanticValues) {
         this->stop();
-        fmt::print(fg(fmt::color::orange), "Stoped\n");
+    };
+
+    parser["SHUTDOWN"] = [this, &server_data](const SemanticValues) {
+        RPC_Client client{grpc::CreateChannel(server_data.ip + ":" + server_data.get_grpc_port(), grpc::InsecureChannelCredentials())};
+        if (!client.send_shutdown()) {
+            fmt::print(fg(fmt::color::orange), "Server doesn't allow to be stopped or is allready shut down!\n");
+        }
+        this->stop();
     };
 
     parser["SHOW"] = [&](const SemanticValues &vs) {

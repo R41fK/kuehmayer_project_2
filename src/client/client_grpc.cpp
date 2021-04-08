@@ -29,7 +29,6 @@ bool RPC_Client::send_shutdown() {
     Status status = stub_->shutdown(&context, request, &reply);
 
     if (!status.ok()) {
-        
         return false;
     }
 

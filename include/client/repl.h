@@ -29,11 +29,13 @@ private:
     std::map<std::string, Car_Calculator> car_calculators{};
 
     std::string grammar{R"(
-        START       <- HELP / SHOW / CAR_BUILDER / CALCULATOR / CAR / END
+        START       <- HELP / SHOW / CAR_BUILDER / CALCULATOR / CAR / END / SHUTDOWN
 
         HELP        <- 'help' / 'h'
 
         END         <- 'end' / 'stop' / 'exit'
+
+        SHUTDOWN    <- 'shutdown'
 
         SHOW        <- NAME 'show car_calculator'
                      / NAME 'show car_builder'

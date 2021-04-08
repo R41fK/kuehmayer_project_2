@@ -97,7 +97,7 @@ unit_test_src = ['unit_tests/main_tests.cpp', 'unit_tests/car_tests.cpp', 'src/c
                  'src/car_calculator.cpp', 'src/client/repl_constructor.cpp', 
                  'src/client/repl_functions.cpp', 'unit_tests/repl_tests.cpp', 
                  'src/config.cpp', 'src/message_utility.cpp', 'src/pystring.cpp', 
-                 'unit_tests/message_utility_test.cpp']
+                 'unit_tests/message_utility_test.cpp', 'src/client/client_grpc.cpp']
 
 int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_int_tests.cpp',
                 'src/car.cpp', 'src/car_builder.cpp', 'src/car_calculator.cpp', 
@@ -107,7 +107,7 @@ int_test_src = ['integration_tests/main_int_tests.cpp', 'integration_tests/repl_
 
 #protobuf: src = ['src/main.cpp', generated]
 
-executable('client', proto, grpc, 
+executable('client', proto, grpc,
            sources : client_src,
            include_directories : inc_dir,
            dependencies : [thread_dep, protobuf_dep, grpccpp_dep],
@@ -121,10 +121,10 @@ executable('server', proto, grpc,
            cpp_args : '-Wno-psabi'
           )
 
-executable('unit_tests', proto, 
+executable('unit_tests', proto, grpc,
            sources : unit_test_src,
            include_directories : inc_dir,
-           dependencies : [thread_dep, protobuf_dep],
+           dependencies : [thread_dep, protobuf_dep, grpccpp_dep],
            cpp_args : ['-DTESTS', '-Wno-psabi']
           )
 

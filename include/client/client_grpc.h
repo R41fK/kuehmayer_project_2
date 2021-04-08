@@ -1,10 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <string>
-
 #include <grpcpp/grpcpp.h>
+
 #include "grpc_message.grpc.pb.h"
 #include "grpc_message.pb.h"
 

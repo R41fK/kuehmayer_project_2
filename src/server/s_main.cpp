@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+    bool allow_print{false};
     config::Server server_data;
     config::Log_Settings logger_settings;
     logger_settings.log_file = "logs/server.log";
@@ -36,6 +37,8 @@ int main(int argc, char* argv[]) {
     app.add_option("-p, --port", server_data.port, "port to connect to for asio. Grpc will connect one port above", true);
 
     app.add_flag("-e, --enable-shutdown", server_data.allow_shutdown, "allows a client to shutdown the server with a request");
+
+    app.add_flag("-a, --allow-print", allow_print, "allows the server to print out his actions");
 
     auto flag_l{app.add_flag("-l, --log-to-file"
                             , logger_settings.log_to_file
@@ -94,7 +97,7 @@ int main(int argc, char* argv[]) {
 
     logger_settings.config_logger();
 
-    Shutdown_Implementation shutdown{server_data};
+    Shutdown_Implementation shutdown{server_data, allow_print};
 
     try {
 
@@ -134,7 +137,7 @@ int main(int argc, char* argv[]) {
                         
                         spdlog::info("Client connected to Server");
 
-                        Object_Storage obst{};
+                        Object_Storage obst{allow_print};
 
                         while (*strm) {
 

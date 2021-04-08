@@ -10,7 +10,7 @@ service Shutdown {
   
   // The request message containing the user's name.
   message ShutdownRequest {
-    bool imediate = 1;
+    bool imediate = 1;    
   }
   
   // The response message containing the greetings
