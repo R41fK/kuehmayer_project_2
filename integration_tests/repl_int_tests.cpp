@@ -42,7 +42,7 @@ TEST_CASE("Repl send message sync Builder") {
     builder.ps(60)->purchase_value(16000);
 
     string data{send_message(builder.get_proto_message("test", false), repl.strm)};
-    CHECK(data == "ok");
+    CHECK(data == builder.get_proto_message("test", true));
 
     repl.strm->close();
 }
@@ -60,7 +60,13 @@ TEST_CASE("Repl send message build Car") {
 
     string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == builder.get_proto_message("test", true));
+
+    Reply reply{};
+
+    REQUIRE(reply.ParseFromString(data));
+
+    Car car{reply.car()};
 
     Request msg{};
 
@@ -72,7 +78,7 @@ TEST_CASE("Repl send message build Car") {
 
     data = send_message(msg.SerializeAsString(), repl.strm);
 
-    CHECK(data == "ok");
+    CHECK(data == car.get_proto_message("car"));
 
     repl.strm->close();
 }
@@ -91,7 +97,7 @@ TEST_CASE("Repl send message sync Car_Calculator") {
 
     string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
-    CHECK(data == "ok");
+    CHECK(data == calc.get_proto_message("calc", "", true));
 
     repl.strm->close();
 }
@@ -110,7 +116,13 @@ TEST_CASE("Repl send message calculate insurance") {
 
     string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == builder.get_proto_message("test", true));
+
+    Reply reply{};
+
+    REQUIRE(reply.ParseFromString(data));
+
+    Car car{reply.car()};
 
     Request msg{};
 
@@ -122,7 +134,7 @@ TEST_CASE("Repl send message calculate insurance") {
 
     data = send_message(msg.SerializeAsString(), repl.strm);
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == car.get_proto_message("car"));
 
     Car_Calculator calc1{};
     calc1.set_insurance_class(1);
@@ -132,7 +144,7 @@ TEST_CASE("Repl send message calculate insurance") {
 
     data = send_message(calc1.get_proto_message("calc1", "car", false), repl.strm);
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == calc1.get_proto_message("calc1", "car", true));
 
     Request ms{};
 
@@ -149,7 +161,12 @@ TEST_CASE("Repl send message calculate insurance") {
 
     REQUIRE(calc1.calculate_insurance_rate().has_value());
 
-    CHECK(data == fmt::format("Insurance rate: {}", calc1.calculate_insurance_rate().value()));
+    reply = Reply();
+    reply.set_type(Reply::MessageType::Reply_MessageType_DOUBLE);
+    reply.set_value(calc1.calculate_insurance_rate().value());
+    reply.set_text("Insurance rate:");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
@@ -167,7 +184,13 @@ TEST_CASE("Repl send message calculate leasing") {
 
     string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == builder.get_proto_message("test", true));
+
+    Reply reply{};
+    
+    REQUIRE(reply.ParseFromString(data));
+
+    Car car{reply.car()};
 
     Request msg{};
 
@@ -179,7 +202,7 @@ TEST_CASE("Repl send message calculate leasing") {
 
     data = send_message(msg.SerializeAsString(), repl.strm);
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == car.get_proto_message("car"));
 
     Car_Calculator calc{};
     calc.set_deposit(2000);
@@ -190,7 +213,7 @@ TEST_CASE("Repl send message calculate leasing") {
 
     data = send_message(calc.get_proto_message("calc", "car", false), repl.strm);
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == calc.get_proto_message("calc", "car", true));
 
     Request ms{};
 
@@ -209,7 +232,13 @@ TEST_CASE("Repl send message calculate leasing") {
 
     REQUIRE(calc.calculate_leasing_rate().has_value());
 
-    CHECK(data == fmt::format("Leasing rate: {}", calc.calculate_leasing_rate().value()));
+    reply = Reply();
+
+    reply.set_type(Reply::MessageType::Reply_MessageType_DOUBLE);
+    reply.set_value(calc.calculate_leasing_rate().value());
+    reply.set_text("Leasing rate:");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
@@ -229,7 +258,11 @@ TEST_CASE("Repl send message calculate leasing calculator not found") {
 
     string data{send_message(ms.SerializeAsString(), repl.strm)};
 
-    CHECK(data == "Car_Calculator calc does not exist");
+    Reply reply{};
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+    reply.set_text("Car_Calculator calc does not exist");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 
@@ -250,7 +283,7 @@ TEST_CASE("Repl send message calculate insurance failed") {
 
     string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == calc.get_proto_message("calc", "", true));
 
     Request ms{};
 
@@ -261,7 +294,12 @@ TEST_CASE("Repl send message calculate insurance failed") {
 
     data = send_message(ms.SerializeAsString(), repl.strm);
 
-    CHECK(data == "Car_Calculator calc failed calculating the insurance rate. Not all key components (car & insurance_class) were set!");
+    Reply reply{};
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+    reply.set_text("Car_Calculator calc failed calculating the insurance rate."
+    " Not all key components (car & insurance_class) were set!");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 
@@ -281,7 +319,7 @@ TEST_CASE("Repl send message calculate leasing failed") {
 
     string data{send_message(calc.get_proto_message("calc", "", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == calc.get_proto_message("calc", "", true));
 
     Request ms{};
 
@@ -292,7 +330,12 @@ TEST_CASE("Repl send message calculate leasing failed") {
 
     data = send_message(ms.SerializeAsString(), repl.strm);
 
-    CHECK(data == "Car_Calculator calc failed calculating the leasing rate. Not all key components (car, rest_value, leasing_duration & deposite) were set!");
+    Reply reply{};
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+    reply.set_text("Car_Calculator calc failed calculating the leasing rate."
+    " Not all key components (car, rest_value, leasing_duration & deposite) were set!");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
@@ -313,7 +356,11 @@ TEST_CASE("Repl send message build Car no Builder") {
 
     string data{send_message(msg.SerializeAsString(), repl.strm)};
 
-    CHECK(data == "Builder test does not exist");
+    Reply reply{};
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+    reply.set_text("Builder test does not exist");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
@@ -332,7 +379,7 @@ TEST_CASE("Repl send message build Car. Builder failed") {
 
     string data{send_message(builder.get_proto_message("test", false), repl.strm)};
 
-    REQUIRE(data == "ok");
+    REQUIRE(data == builder.get_proto_message("test", true));
 
     Request msg{};
 
@@ -344,7 +391,12 @@ TEST_CASE("Repl send message build Car. Builder failed") {
 
     data = send_message(msg.SerializeAsString(), repl.strm);
 
-    CHECK(data == "Builder test failed building. Not all key components (ps & purchase_value) were set!");
+    Reply reply{};
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+    reply.set_text("Builder test failed building."
+    " Not all key components (ps & purchase_value) were set!");
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
@@ -364,7 +416,11 @@ TEST_CASE("Repl sync calculator, no car found") {
 
     string data{send_message(calc.get_proto_message("calc", "car", false), repl.strm)};
 
-    CHECK(data == "Car car does not exist");
+    Reply reply{};
+    reply.set_text("Car car does not exist");
+    reply.set_type(Reply::MessageType::Reply_MessageType_ERROR);
+
+    CHECK(data == reply.SerializeAsString());
 
     repl.strm->close();
 }
