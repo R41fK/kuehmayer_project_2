@@ -12,5 +12,7 @@ class RPC_Client {
     public:
     RPC_Client(std::shared_ptr<grpc::Channel> channel) : stub_(shutdown_message::Shutdown::NewStub(channel)) {}
 
+    // sends a shutdown signal to the server. Returns true if the server is shuting down 
+    // and false if the server rejects the singal.
     bool send_shutdown();
 };

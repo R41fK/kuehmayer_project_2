@@ -71,6 +71,9 @@ public:
 
     Car(Message_Car);
 
+    // updates the object from a proto-message
     void update_car_from_proto_message(Message_Car);
+
+    // returns a reply proto-message
     std::string get_proto_message(std::string);
 };

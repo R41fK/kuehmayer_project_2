@@ -36,6 +36,10 @@ public:
 
     std::string to_string();
 
+    // get the protomessage. If the second parameter ist true it is a reply, 
+    // else it is a request
     std::string get_proto_message(std::string, std::string, bool);
+
+    // updates the object from a proto-message
     void update_car_calculator_from_proto_message(Message_Car_Calculator);
 };

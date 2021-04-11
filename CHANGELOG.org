@@ -1,9 +1,10 @@
 * Changelog
-** [Unreleased]
+** [1.0.0] - 2021-04-11
 *** Updated
 - Adding output to the server
-- Changing the creation og objects for the client. 
+- Changing the creation of objects for the client.
 - Now it gets them from the server.
+- Changing the integration_tests to fit the new communciation.
 - include/client/repl.h
 - include/server/object_storage.h
 - include/server/server_grpc.h

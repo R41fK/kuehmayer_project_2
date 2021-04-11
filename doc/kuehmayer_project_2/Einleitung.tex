@@ -1,0 +1,41 @@
+\section{Aufgabenstellung}
+Impelentierung eines Remote Method Invocation Systems basierend auf asio. Der Server und der Client müssen mit spdlog Logdateien anlegen können und JSON soll verwendet werden, entweder für die Kommunikation oder für die Konfiguration.
+
+\section{Erweiterung durch Bibliotheken}
+
+\paragraph{asio} \mbox{} \vspace{2mm} \\
+Die Bibliothek asio wird für die generelle Kommunikation zwischen dem Server und dem Client verwendet.
+
+\paragraph{CLI11} \mbox{} \vspace{2mm} \\
+Mit CLI11 wird die Schnittstelle beim Starten des Programms zum Benutzer implementiert. CLI11 hilft auch beim Validieren der Parameter und überprüfen, ob Dateien zur Konfiguration vorhanden sind.
+
+\paragraph{doctest} \mbox{} \vspace{2mm} \\
+Mit der Bibliothek doctest, werden die Testfälle der Unit- und Integration-Tests implementiert und es gibt die Möglichkeit, dem Anwender mit Parametern zu Konfigurieren, welche Tests ausgeführt werden sollen und wie es sich bei Fehlern verhalten soll.
+
+\paragraph{fmt} \mbox{} \vspace{2mm} \\
+Fmt wird zum Formatieren von Strings und zur synchronisierten und farbigen Ausgabe verwendet.
+ 
+\paragraph{grpc} \mbox{} \vspace{2mm} \\
+Mit der grpc Bibliothek kann man von einem Client eine Funktion Remote am Server ausführen und von dieser einen Rückgabewert bekommen.
+
+\paragraph{json} \mbox{} \vspace{2mm} \\
+Durch die json Bibliothek kann eine JSON-Datei an das Programm übergeben werden und das Programm basierend auf dieser konfiguriert.
+
+\paragraph{magic\_enum} \mbox{} \vspace{2mm} \\
+Mit der Bibliothek magig\_enum wird das Arbeiten mit enums in c++ erleichtert und die enums im Generellen um Funktionalität erweitert.
+
+\paragraph{peglib} \mbox{} \vspace{2mm} \\
+Mit peglib können Benutzer eingaben, validiert und geparst werden. Man kann eine Grammatik angeben und für jeden Befehl eine eigene Funktion starten.
+
+\paragraph{protobuf} \mbox{} \vspace{2mm} \\
+Mittels protobuf können Message-Objekte erstellt werden, welche komplexe Objekte beinhalten können. Diese Message-Objekte kann man dann mit protobuf zu einem String serialisieren, was für die Übertragung von Objekten praktisch ist.
+
+\paragraph{rang} \mbox{} \vspace{2mm} \\
+Die Bibliothek rang, wird verwendet, um den Konsolenoutputstream von c++ zu Manipulieren und formatierte und farbige Ausgabe möglich zu machen. Da die Standard c++ Streams verwendet werden, ist die Ausgabe nicht Threadsafe.
+
+\paragraph{spdlog} \mbox{} \vspace{2mm} \\
+Mit spdlog können Log-Dateien erstellt und beschrieben werden. Spdlog ist Threadsafe und fügt viele nützliche Features zum Loggen hinzu, wie z. B. Uhrzeit und Threadnummer.
+
+
+\paragraph{toml++} \mbox{} \vspace{2mm} \\
+Durch die toml++ Bibliothek kann eine TOML-Datei an das Programm übergeben werden und das Programm basierend auf dieser konfiguriert.

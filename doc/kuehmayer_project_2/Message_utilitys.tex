@@ -1,0 +1,35 @@
+\subsubsection{Message\_utilitys}
+Damit der Server und der Client kommunizieren können und dabei auch Objekte versendet werden können, gibt es für alle Objekte, welche auch übertragen werden, eine Protobuff-Message, welche an den Request oder den Reply übergeben werden kann. Um diese Messages mittels asio übertragen zu können, werden sie zu Strings serialisiert. Da diese serialisierten Strings allerdings auch \textbackslash n und andere ASCII-Steuerzeichen beinhalten können, werde diese Strings codiert, um dann ein \textbackslash n anzuhängen, um sie zu versenden. Damit die codierte Message möglichst kompakt, aber die Erstellung auch möglichst schnell geht, werden in diesem serialisierten String jedes Zeichen in seinen entsprechenden ASCII-Code umgewandelt. Die Kompaktheit und die Geschwindigkeit sind notwendig, damit beim Senden und Empfangen eine kürzest mögliche Decodierung, also eine kürzest mögliche Verzögerung stattfindet.
+
+\vspace{10mm}
+\begin{addmargin}[-3em]{0em}
+\begin{minted}{c++}
+string message_utility::to_ascii(string data) {
+    stringstream sstream;
+
+    for(char ch : data) {
+        sstream << " " << (int)ch;
+    }
+    sstream << "\n";
+
+    return sstream.str();
+}
+
+
+string message_utility::from_ascii(string data) {
+    
+    data = pystring::lstrip(data);
+    stringstream sstream{};
+    string new_string{};
+    string temp{};
+
+    sstream << data;
+
+    while (sstream >> temp) {
+        new_string.push_back((char) stoi(temp));
+    }
+    
+    return new_string;
+}
+\end{minted}
+\end{addmargin}

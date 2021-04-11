@@ -1,7 +1,7 @@
 # uncomment as necessary
 project('Remote Method Invocation System', 'cpp',
         license : ['Boost'],
-        version : '0.0.10',
+        version : '1.0.0',
         default_options : ['cpp_std=c++17', 'warning_level=3', 'werror=true'])
 
 thread_dep = dependency('threads')

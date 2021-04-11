@@ -37,5 +37,6 @@ namespace config {
 
     bool config_from_toml(toml::table, Server&, Log_Settings&);
 
+    // creates a new process and starts the server. returns the pid of the new process
     int start_server(bool, Server, Log_Settings, std::string, std::string);
 }

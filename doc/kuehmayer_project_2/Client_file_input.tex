@@ -1,0 +1,39 @@
+\subsubsection{Client file input}
+Damit es dem Benutzer leichter fällt, bestimmte aufgaben häufiger auszuführen, gibt es die Möglichkeit, ein Script an Befehlen zu erstellen und dieses an den Client mittels des File-Befehls zu übergeben. Diese Script-Datei wird dann vom Client gelesen und wenn die Datei vorhanden ist, wird jeder Befehl in dieser Datei mit der Grammatik validiert und interpretiert. Ist die Datei nicht vorhanden, wird dem Benutzer eine Fehlermeldung ausgegeben.
+
+\vspace{10mm}
+\begin{addmargin}[-3em]{0em}
+\begin{minted}{c++}
+void Repl::file() {
+    string input{};
+    fmt::print("Filepath: ");
+    getline(cin, input);
+    ifstream infile(input.c_str());
+    
+    if (infile.good()) {
+
+        string line{};
+        while (getline(infile, line) && this->running) {
+            fmt::print("{}\n", line);
+
+            line = pystring::lower(line);
+
+            line = pystring::strip(line);
+
+            spdlog::debug(fmt::format("File input: {}", line));
+
+            this->parser.parse(line.c_str());
+
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+    } else {
+        fmt::print("File {} does not exist\n", input);
+
+        spdlog::info(fmt::format("File {} does not exist", input));
+    }
+}
+
+\end{minted}
+\end{addmargin}
+
+

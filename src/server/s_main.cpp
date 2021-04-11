@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     string config_file_json{};
     string config_file_toml{};
 
-    CLI::App app("client");
+    CLI::App app("server");
 
     app.add_option("-p, --port", server_data.port, "port to connect to for asio. Grpc will connect one port above", true);
 

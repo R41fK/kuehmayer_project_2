@@ -26,6 +26,10 @@ string Object_Storage::new_action(string data) {
 
     spdlog::debug(fmt::format("Client Message decoded to '{}'", data));    
 
+    if (data == "") { // checking the connection at the begining of the client
+        return "ok";
+    }
+
     //cout << data << endl;
 
     Request msg{};

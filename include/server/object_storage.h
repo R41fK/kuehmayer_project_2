@@ -16,11 +16,13 @@ class Object_Storage {
     std::map<std::string, Car_Builder> car_builders{};
     std::map<std::string, Car_Calculator> car_calculators{};
 
+    // prints a message to the consol if allowed
     void print(std::string, fmt::color);
 
     public:
 
     Object_Storage(bool allow_print) : allow_print(allow_print) {};
     
+    // interprets the message from the client and creates the response
     std::string new_action(std::string);
 };

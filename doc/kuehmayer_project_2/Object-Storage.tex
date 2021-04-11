@@ -1,0 +1,42 @@
+\subsubsection{Server / Object-Storage}
+Der Server bekommt die codierten Strings, welche decodiert werden und an den Object-Storage weiter gegeben werden. In diesem Object-Storage wird dann versucht, diesen String, welcher ein serialisierter String des Proto-Requests sein sollte, zu einem Proto-Request Objekt zu parsen. Kann der String nicht geparst werden, gibt der Object-Storage eine Fehlermeldung zurück, welche der Server codiert und an den Client sendet. Kann der String jedoch in das Proto-Request Objekt geparst werden, dann wird dieses im Object-Storage verarbeitet. Das heißt, dass zuerst überprüft wird, um welche Art von Aufgabe sich es handelt. Diese Überprüfung wird durch ein switch-case mit dem MessagTypen, welcher den Wert einer Enum beinhaltet, durchgeführt. Kann dieser Typ dann einem Case zugeordnet werden, dann werden die für diese Aktion notwendigen Überprüfungen und Aktionen durchgeführt. Wie in dem Beispiel zu sehen, werden bei fast allen Cases zuerst überprüft, ob überhaupt alle notwendigen Objekte vorhanden sind. In manchen Fällen müssen diese Objekte vorhanden sein, sonst wird eine Error-Message an den Client zurückgegeben. In anderen Fällen wie dem Beispiel wird überprüft, ob das Objekt vorhanden ist, ist es vorhanden, dann wird es aktualisiert, ist es nicht vorhanden, dann wird es erstellt. Sind alle Überprüfungen erfolgreich und die Operation konnte erfolgreich durchgeführt werden, dann wird das Erstellte Protp-Reply Objekt an den Client zurückgegeben.
+
+\vspace{10mm}
+\begin{addmargin}[-3em]{0em}
+\begin{minted}{c++}
+...
+case Request::MessageType::Request_MessageType_BUILDER:
+    spdlog::debug(fmt::format("Message is MessageType Builder"));
+
+    if (this->car_builders.find(msg.name()) != this->car_builders.end()) {
+        spdlog::info(fmt::format("Builder {} existsts and will be updated", 
+                    msg.name()));
+                    
+        print(fmt::format("Builder {} existsts and will be updated", 
+                    msg.name()), fmt::color::medium_sea_green);
+
+        this->car_builders.at(msg.name())
+            .update_car_builder_from_proto_message(msg.car());
+    } else {
+        spdlog::info(
+            fmt::format("Builder {} does not existst and will be created", 
+                msg.name()
+            )
+        );
+        
+        print(
+            fmt::format("Builder {} does not existst and will be created", 
+                msg.name()
+            ), fmt::color::medium_sea_green);
+
+        Car_Builder builder{};
+        builder.update_car_builder_from_proto_message(msg.car());
+        this->car_builders.insert_or_assign(msg.name(), builder);
+    }
+
+    return this->car_builders.at(msg.name())
+            .get_proto_message(msg.name(), true);
+...
+\end{minted}
+\end{addmargin}
+

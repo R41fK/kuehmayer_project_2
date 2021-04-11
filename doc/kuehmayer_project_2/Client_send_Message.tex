@@ -1,0 +1,49 @@
+\subsubsection{Client send Message}
+
+Wenn der Client eine Nachricht an den Server senden soll, überprüft er vor dem senden, ob der Server die aktuelle Verbindung noch aufrecht erhalten hat oder ob die Verbindung abgebrochen ist. Falls die Verbindung nicht abgebrochen ist, codiert der Client zu erst die Nachricht. Ist die Nachricht codiert, wird sie in einem Vektor gespeichert. Dieser Vektor existiert damit, falls die Verbindung abgebrochen ist und der Benutzer die Verbindung wieder Aufbauen will und der Server noch aktiv ist, der Client den Server auf den Aktuellen stand bringen kann. Nachdem die Nachricht gespeichert ist, wird diese auch an den Server gesendet. Danach wartet der Client auf eine Antwort vom Server. Sobald er diese Antwort bekommt, decodiert er sie und interpretiert diese. Wenn die Verbindung abgebrochen ist und der Benutzer probiert, den Client wieder mit dem Server zu verbinden, aber der Server nicht mehr aktiv ist, dann schließt sich der Client mit der Fehlermeldung, dass der Server nicht mehr aktiv ist.
+
+\vspace{10mm}
+\begin{addmargin}[-3em]{0em}
+\begin{minted}{c++}
+void Repl::send_message(string msg) {
+
+    if (*strm) {
+    
+        spdlog::debug(fmt::format("Client encodes message '{}'", msg));
+
+        string dec_msg{message_utility::to_ascii(msg)};
+
+        spdlog::debug(fmt::format("Client sends encoded message '{}'", 
+        pystring::replace(dec_msg, "\n", "")));
+
+        this->messages.push_back(dec_msg);
+
+        *strm << dec_msg;
+
+        string data;
+
+        getline(*strm, data);
+
+        spdlog::debug(
+            fmt::format("Client got   encoded message '{}'", data)
+        );
+
+        data = message_utility::from_ascii(data);
+
+        spdlog::debug(fmt::format("Client decoded message '{}'", data));
+
+        data = pystring::lstrip(data);
+
+        if (data != "ok" && data != "") {
+            parse_message(data);
+        }
+        
+    } else {
+        ...
+    }
+}
+\end{minted}
+\end{addmargin}
+
+
+

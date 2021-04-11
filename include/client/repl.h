@@ -88,9 +88,10 @@ private:
     // show the commands for the repl
     void show_help();
 
-    // stop all threads
+    // stop the repl
     void stop();
 
+    // read the inputs of a file and interpret them
     void file();
 
     void no_Car(std::string);

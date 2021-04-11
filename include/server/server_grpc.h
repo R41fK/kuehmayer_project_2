@@ -17,6 +17,7 @@ class Shutdown_Implementation final : public shutdown_message::Shutdown::Service
 
     grpc::Status shutdown(grpc::ServerContext* context, const shutdown_message::ShutdownRequest* request, shutdown_message::ShutdownReply* reply) override;
 
+     // prints a message to the consol if allowed
     void print(std::string, fmt::color);
 
     public:
@@ -29,5 +30,6 @@ class Shutdown_Implementation final : public shutdown_message::Shutdown::Service
             allow_print(allow_print) 
             {};
 
+    // creates the server and waits until the shutdown
     void operator()();
 };

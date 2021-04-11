@@ -1,0 +1,43 @@
+\subsection{Parameter}
+Bei beiden Programmen kann man die Parameter in Logging-Parameter, Connection-Parameter und Konfiguration-Parameter einteilen. Wobei diese Parameter bis auf einige Spezifische auf dem Server und dem Client gleich sind.
+
+\paragraph{Logging-Parameter}
+
+\paragraph{-l,\texttt{-{}-}log-to-file} \mbox{} \vspace{2mm} \\
+Mit diesem Parameter kann der Benutzer das Logging in eine externe Datei aktivieren. Wird nur dieser Parameter angegeben, ist das Log-Level per Default auf Info gestellt und der Logger erstellt eine Datei in einem Unterverzeichnis log mit dem Namen server.log oder client.log.
+
+\paragraph{-d,\texttt{-{}-}log-level-debug} \mbox{} \vspace{2mm} \\
+Will man mehr Daten sehen, um z. B. einen Fehler im Programm zu finden. Kann man mit diesem Parameter das Log-Level auf Debug setzen. Dadurch werden mehrere Informationen in die Log-Datei geschrieben. Dieser Parameter kann nur angegeben werden, wenn auch der Parameter "-l,\texttt{-{}-}log-to-file" angegeben wurde.
+
+\paragraph{\texttt{-{}-}log-file $<Dateipfad>$} \mbox{} \vspace{2mm} \\
+Soll die Log-Datei in einem bestimmten Verzeichnis mit einem bestimmten Namen platziert werden, muss dieser Parameter und ein Dateipfad mit Dateinamen angegeben werden. Existiert diese Datei bereits, wird sie überschrieben. Wenn diese Datei größer als 10 MB wird, legt der Logger bis zu drei Dateien an. Sind alle drei Daten größer als 10 MB, wird begonnen, die erste zu überschreiben. Dieser Parameter kann nur angegeben werden, wenn auch der Parameter "-l,\texttt{-{}-}log-to-file" angegeben wurde.
+
+\paragraph{Connection-Parameter}
+
+\paragraph{-p,\texttt{-{}-}port $<positive \: ganze \: Zahl>$} \mbox{} \vspace{2mm} \\
+Mit diesem Parameter wird für den Server der Port angegeben, auf welchem er auf Anfragen hören soll. Für den Client gibt dieser Parameter an, auf welchem Port er die Anfragen schicken soll. Es wird nicht nur der angegebene Port, sondern auch der nächsthöhere Port verwendet. Wird dieser Parameter nicht angegeben, wird der Defaultport verwendet. Dieser Defaultport ist Port 1112.
+
+\paragraph{Client: -s,\texttt{-{}-}server-ip $<Hostname \: oder \: IP-Adresse>$} \mbox{} \vspace{2mm} \\
+Dieser Parameter ist nur für den Client bestimmt, da der Server die IP-Adresse des Gerätes, auf welchem er gestartet wurde, annimmt. Wird an diesem Parameter eine IP-Adresse übergeben, dann wird sie validiert, ob sie allen Richtlinien einer IP-Adresse entspricht. Wird dieser Parameter nicht angegeben, wird der Client mit Localhost als IP-Adresse gestartet.
+
+\paragraph{Konfiguration-Parameter}
+
+\paragraph{-j, \texttt{-{}-}config-file-json $<Dateipfad>$} \mbox{} \vspace{2mm} \\
+Mit dem Parameter -j oder \texttt{-{}-}config-file-json und dem Pfad zu der Konfigurationsdatei kann angegeben werden, dass das Programm mit einer JSON-Datei konfiguriert werden soll. Wird dieser Parameter angegeben, werden alle Parameter überschrieben, welche in der Konfigurationsdatei konfiguriert werden.
+
+\paragraph{-t, \texttt{-{}-}config-file-toml $<Dateipfad>$} \mbox{} \vspace{2mm} \\
+Mit dem Parameter -t oder \texttt{-{}-}config-file-toml und dem Pfad zu der Konfigurationsdatei kann angegeben werden, dass das Programm mit einer TOML-Datei konfiguriert werden soll. Wird dieser Parameter angegeben, werden alle Parameter überschrieben, welche in der Konfigurationsdatei konfiguriert werden.
+
+
+\paragraph{Spezifische Parameter}
+
+
+\paragraph{Client: \texttt{-{}-}start-server} \mbox{} \vspace{2mm} \\
+Mit diesem Parameter kann man angeben, dass der gestartete Client auch gleich einen Server startet. Dieser gestartete Server wird auch geschlossen, wenn der Client geschlossen wird. Wird dieser Parameter angegeben, erweitert sich die Validierung der IP-Adresse darauf, dass nur Localhost IP-Adressen valide sind. Das ist daher zu erklären, da, wenn man den Server auf seinem eigenen PC startet, dieser immer nur mit Localhost als IP-Adresse angesprochen werden kann.
+
+
+\paragraph{Server: -e,\texttt{-{}-}enable-shutdown} \mbox{} \vspace{2mm} \\
+Mit diesem Parameter kann man angeben, dass der gestartete Server sich durch einen grpc Aufruf des Clients schließen lassen kann. Dies wird vor allem benötigt, da der Client den Server mit starten kann und dann diesen auch schließen können muss.
+
+\paragraph{Server: -a, \texttt{-{}-}allow-print} \mbox{} \vspace{2mm} \\
+Erlaubt dem Server die zu erledigenden Aufgaben auf der Konsole auszugeben.

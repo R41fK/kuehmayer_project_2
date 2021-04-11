@@ -1,0 +1,52 @@
+\subsubsection{Proto-Message}
+Um die Kommunikation und Synchronisation von Objekten zwischen dem Client und dem Server zu implementieren, werden Proto-Messages verwendet. Diese Proto-Messages/-Objekte können einfach erstellt werden und einfach zu Strings serialisiert werden. Da der Request an den Server und der Reply von dem Server leicht unterschiedlich sind, gibt es für beide Richtungen eine eigene Message. In beiden Messages gibt es eine Enum, welche der empfangenden Partei mitteilt, welche Operation für diese Message ausgeführt werden soll. Für die unterschiedlichen Aktionen sind dann weitere Daten in diesen Objekten abgebildet. Diese Daten werden dann ausgelesen und verwendet, um z. B. ein Objekt zu aktualisieren oder ein neues zu erstellen. Die Reply message, hat auch die Möglichkeit, einen Error an den Client zu übergeben, wenn eine Operation versucht wird, für welche nicht genügend Daten vorhanden sind.
+
+
+\vspace{20mm}
+\begin{addmargin}[-3em]{0em}
+\begin{minted}{c++}
+message Request {
+
+    enum MessageType {
+        NONE = 0;
+        BUILDER = 1;
+        CALCULATOR = 2;
+        BUILD = 3;
+        CALC_LEASING = 4;
+        CALC_INSURANCE = 5;
+    }
+
+    MessageType type = 1;
+    
+    oneof message {
+        Message_Car car = 2;
+        Message_Car_Calculator calculator = 3;
+    }
+    
+    string name = 4;
+    string builder = 5;
+}
+
+message Reply {
+
+    enum MessageType {
+        NONE = 0;
+        BUILDER = 1;
+        CALCULATOR = 2;
+        CAR = 3;
+        DOUBLE = 4;
+        ERROR = 5;
+    }
+
+    MessageType type = 1;
+    
+    oneof message {
+        Message_Car car = 2;
+        Message_Car_Calculator calculator = 3;
+    }
+
+    string text = 4;
+    double value = 5;
+}
+\end{minted}
+\end{addmargin}
